@@ -1,11 +1,20 @@
-'use client';
+﻿'use client';
 
-export default function Productos() {
+import { products } from '../../data/products.js';
+import ProductCard from '../../components/ProductCard';
+
+export default function ProductosPage() {
   return (
-    <div className="min-h-screen py-20 px-6">
+    <div className="min-h-screen py-20 px-6 bg-black">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Productos</h1>
-        <p className="text-gray-600">Nuestro catálogo de café premium...</p>
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">
+          Nuestra Colección de Zapatillas
+        </h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {products.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
+          ))}
+        </div>
       </div>
     </div>
   );

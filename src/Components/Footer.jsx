@@ -5,7 +5,7 @@
       <div className="relative max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="text-lg font-bold mb-4">MokkiCoffee</h3>
+            <h3 className="text-lg font-bold mb-4">FLEX</h3>
             <p className="text-gray-300 text-sm">
               Las mejores zapatillas premium en Chile
             </p>
@@ -28,7 +28,7 @@
         </div>
         <div className="border-t border-white/10 pt-6 text-center">
           <p className="text-sm text-gray-400">
-            © {new Date().getFullYear()} MokkiCoffee — Todos los derechos reservados.
+            © {new Date().getFullYear()} FLEX — Todos los derechos reservados.
           </p>
         </div>
       </div>

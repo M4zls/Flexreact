@@ -5,7 +5,7 @@
 He creado la estructura básica de Next.js usando el directorio `src`:
 
 ```
-MokkiCoffee/
+Flex/
 ├── src/
 │   ├── app/
 │   │   ├── layout.jsx          # Layout principal con Navbar y Footer

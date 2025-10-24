@@ -1,60 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, Star, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { products } from '../data/products';
+import ProductCard from '../components/ProductCard';
 
 export default function Page() {
-  const products = [
-    {
-      id: 1,
-      name: "Nike Air Force 1 '07",
-      price: 89990,
-      image: "/Img/Gemini_Generated_Image_boosgqboosgqboos.svg",
-      rating: 4.9,
-      category: "Lifestyle"
-    },
-    {
-      id: 2,
-      name: "Nike Air Max 90",
-      price: 109990,
-      image: "/Img/Gemini_Generated_Image_boosgqboosgqboos.svg",
-      rating: 4.8,
-      category: "Lifestyle"
-    },
-    {
-      id: 3,
-      name: "Nike Pegasus 40",
-      price: 119990,
-      image: "/Img/Gemini_Generated_Image_boosgqboosgqboos.svg",
-      rating: 4.7,
-      category: "Running"
-    },
-    {
-      id: 4,
-      name: "Nike Dunk Low",
-      price: 99990,
-      image: "/Img/Gemini_Generated_Image_boosgqboosgqboos.svg",
-      rating: 4.8,
-      category: "Lifestyle"
-    },
-    {
-      id: 5,
-      name: "Nike Air Jordan 1 Mid",
-      price: 129990,
-      image: "/Img/Gemini_Generated_Image_boosgqboosgqboos.svg",
-      rating: 4.9,
-      category: "Basketball"
-    },
-    {
-      id: 6,
-      name: "Nike Mercurial Superfly",
-      price: 149990,
-      image: "/Img/Gemini_Generated_Image_boosgqboosgqboos.svg",
-      rating: 4.6,
-      category: "Fútbol"
-    }
-  ];
-
   return (
     <div>
       {/* Hero Section */}
@@ -104,48 +55,7 @@ export default function Page() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product, index) => (
-              <div
-                key={product.id}
-                className="group relative bg-gray-50 rounded-3xl p-6 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-fade-in-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                {/* Category Badge */}
-                <div className="absolute top-8 right-8 bg-black text-white text-xs px-3 py-1 rounded-full">
-                  {product.category}
-                </div>
-
-                {/* Product Image */}
-                <div className="relative h-64 mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-
-                {/* Product Info */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium text-gray-700">
-                      {product.rating}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-bold text-gray-900">
-                    {product.name}
-                  </h3>
-
-                  <div className="flex items-center justify-between pt-4">
-                    <span className="text-2xl font-bold text-gray-900">
-                      ${product.price.toLocaleString('es-CL')}
-                    </span>
-                    <button className="bg-black text-white p-3 rounded-full hover:scale-110 transition-transform duration-300">
-                      <ShoppingCart className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ProductCard key={product.id} product={product} index={index} />
             ))}
           </div>
 
