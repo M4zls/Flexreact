@@ -24,7 +24,7 @@ export default function Page() {
           }}></div>
         </div>
         
-        <div className="relative z-10 text-center px-50 max-w-5xl mx-auto z-999">
+        <div className="relative z-10 text-center px-50 max-w-5xl mx-auto z-20">
           <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 animate-fade-in">
             Forma tu camino hacia
             <span className="block bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
@@ -73,7 +73,7 @@ export default function Page() {
 
 
       <section className="py-[66px] px-6 bg-black relative">
-        <div className="max-w-4xl mx-auto text-center relative z-20">
+        <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Únete a nuestra comunidad
           </h2>
@@ -88,7 +88,7 @@ export default function Page() {
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
-        <div className="absolute w-full  h-[20rem] bg-gradient-to-t from-[#4e179a56] to-transparent z-10 top-0 left-0"></div>
+        <div className="absolute w-full  h-[20rem] bg-gradient-to-t from-[#4e179a56] to-transparent z-20 top-0 left-0"></div>
       </section>
 
       <style jsx>{`

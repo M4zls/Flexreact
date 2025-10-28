@@ -7,7 +7,7 @@ import '../styles/globals.css';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className="bg-black">
+    <html lang="es" className="bg-black z-10">
       <body className="bg-black">
         <CartProvider>
           <Navbar />
