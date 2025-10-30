@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Package, MapPin, Calendar, LogOut, ArrowLeft } from 'lucide-react';
@@ -8,14 +8,17 @@ import { useAuth } from '../../context/AuthContext';
 import { useConfirm } from '../../Components/ConfirmModal';
 import { actualizarEstadosAleatorios } from '../../utils/estadosPedidos';
 
-function CuentaContent() {
+export default function Cuenta() {
   const { user, logout, loading, actualizarEstadoPedido } = useAuth();
   const router = useRouter();
   const { showConfirm, ConfirmDialog } = useConfirm();
   const [activeTab, setActiveTab] = useState('perfil');
+  const [isClient, setIsClient] = useState(false);
 
-  // Manejar parámetros de búsqueda de forma segura (solo en cliente)
+  // Asegurar que estamos en el cliente
   useEffect(() => {
+    setIsClient(true);
+    // Solo después de montar en el cliente, leer los parámetros URL
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const tab = urlParams.get('tab');
@@ -37,6 +40,23 @@ function CuentaContent() {
       actualizarEstadosAleatorios(user.pedidos, actualizarEstadoPedido);
     }
   }, [user, actualizarEstadoPedido]);
+
+  // Mostrar loading mientras se carga
+  if (loading || !isClient) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando tu cuenta...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirigir si no hay usuario
+  if (!user) {
+    return null;
+  }
 
   const handleLogout = async () => {
     const confirmed = await showConfirm({
@@ -308,23 +328,3 @@ function CuentaContent() {
   );
 }
 
-// Loading fallback component
-function CuentaLoading() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Cargando tu cuenta...</p>
-      </div>
-    </div>
-  );
-}
-
-// Main component with Suspense boundary
-export default function Cuenta() {
-  return (
-    <Suspense fallback={<CuentaLoading />}>
-      <CuentaContent />
-    </Suspense>
-  );
-}
