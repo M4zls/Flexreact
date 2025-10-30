@@ -131,9 +131,12 @@ export default function Carrito() {
                   </div>
                 </div>
 
-                <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all hover:shadow-lg mb-3">
-                  Proceder al Pago
-                </button>
+                <Link
+                 href="/pago"
+                 className=" block w-full  bg-gradient-to-r font-semibold hover:from-purple-700 hover:to-pink-700 text-center text-gray-400 hover:text-white transition-colors py-4 mb-3 rounded-xl  "
+                >
+                 Finalizar Compra  
+                </Link>
 
                 <Link 
                   href="/productos"
