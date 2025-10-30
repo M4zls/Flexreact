@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { User, Package, MapPin, Calendar, LogOut, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -12,9 +11,17 @@ import { actualizarEstadosAleatorios } from '../../utils/estadosPedidos';
 function CuentaContent() {
   const { user, logout, loading, actualizarEstadoPedido } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { showConfirm, ConfirmDialog } = useConfirm();
-  const [activeTab, setActiveTab] = useState(searchParams?.get('tab') || 'perfil');
+  const [activeTab, setActiveTab] = useState('perfil');
+
+  // Manejar parámetros de búsqueda de forma segura
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
