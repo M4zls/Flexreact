@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useConfirm } from '../../Components/ConfirmModal';
 import { actualizarEstadosAleatorios } from '../../utils/estadosPedidos';
 
-export default function Cuenta() {
+function CuentaContent() {
   const { user, logout, loading, actualizarEstadoPedido } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -296,5 +296,26 @@ export default function Cuenta() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading fallback component
+function CuentaLoading() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Cargando tu cuenta...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function Cuenta() {
+  return (
+    <Suspense fallback={<CuentaLoading />}>
+      <CuentaContent />
+    </Suspense>
   );
 }
