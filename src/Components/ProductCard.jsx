@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { ShoppingCart, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useToast } from './Toast';
 
 export default function ProductCard({ product, index }) {
   const [selectedSize, setSelectedSize] = useState('');
   const [showSizes, setShowSizes] = useState(false);
   const { agregarAlCarrito } = useCart();
+  const { showToast } = useToast();
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -19,7 +21,7 @@ export default function ProductCard({ product, index }) {
     setShowSizes(false);
     
     // Mostrar feedback
-    alert(`${product.name} (Talla ${selectedSize}) agregado al carrito!`);
+    showToast(`${product.name} (Talla ${selectedSize}) agregado al carrito!`, 'success');
   };
 
   return (

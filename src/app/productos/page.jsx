@@ -2,10 +2,14 @@
 
 import { products } from '../../data/products.js';
 import ProductCard from '../../Components/ProductCard.jsx';
+import { useToast } from '../../Components/Toast';
 
 export default function ProductosPage() {
+  const { ToastContainer } = useToast();
+
   return (
     <div className="min-h-screen py-20 px-6 bg-black">
+      <ToastContainer />
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">
           Nuestra Colección de Zapatillas

@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Menu, X } from 'lucide-react';
+import { ShoppingCart, Menu, X, User } from 'lucide-react';
 import { useCart } from '../context/CartContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import CartDropdown from './CartDropdown.jsx';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const { obtenerCantidadTotal } = useCart();
+    const { user } = useAuth();
     const cantidadProductos = obtenerCantidadTotal();
 
     return (
@@ -42,15 +44,27 @@ export default function Navbar() {
 
                     <div className="flex items-center gap-4">
                         <div className="hidden md:flex items-center gap-3">
-                            <Link href="/login" className="text-[14px] text-gray-300 hover:text-red-500 transition-colors">
-                                Login
-                            </Link>
-                            <Link 
-                                href="/registro" 
-                                className="text-[14px] bg-white text-black px-4 py-2 rounded-full hover:text-red-500 transition-colors font-medium"
-                            >
-                                Registro
-                            </Link>
+                            {user ? (
+                                <Link 
+                                    href="/cuenta" 
+                                    className="flex items-center gap-2 text-[14px] text-gray-300 hover:text-red-500 transition-colors"
+                                >
+                                    <User className="w-4 h-4" />
+                                    {user.nombre.split(' ')[0]}
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link href="/login" className="text-[14px] text-gray-300 hover:text-red-500 transition-colors">
+                                        Login
+                                    </Link>
+                                    <Link 
+                                        href="/registro" 
+                                        className="text-[14px] bg-white text-black px-4 py-2 rounded-full hover:text-red-500 transition-colors font-medium"
+                                    >
+                                        Registro
+                                    </Link>
+                                </>
+                            )}
                         </div>
                         
                         <div className="relative">
@@ -93,16 +107,29 @@ export default function Navbar() {
                         Contacto
                     </Link>
                     <div className="border-t border-white/10 mt-2 pt-2 space-y-2">
-                        <Link href="/login" className="block text-[13px] text-gray-300 hover:text-white transition-colors py-2" onClick={() => setIsOpen(false)}>
-                            Login
-                        </Link>
-                        <Link 
-                            href="/registro" 
-                            className="block text-center text-[13px] bg-white text-black px-4 py-2 rounded-full hover:bg-gray-200 transition-colors font-medium"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            Registro
-                        </Link>
+                        {user ? (
+                            <Link 
+                                href="/cuenta" 
+                                className="flex items-center gap-2 text-[13px] text-gray-300 hover:text-white transition-colors py-2" 
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <User className="w-4 h-4" />
+                                {user.nombre.split(' ')[0]}
+                            </Link>
+                        ) : (
+                            <>
+                                <Link href="/login" className="block text-[13px] text-gray-300 hover:text-white transition-colors py-2" onClick={() => setIsOpen(false)}>
+                                    Login
+                                </Link>
+                                <Link 
+                                    href="/registro" 
+                                    className="block text-center text-[13px] bg-white text-black px-4 py-2 rounded-full hover:bg-gray-200 transition-colors font-medium"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    Registro
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

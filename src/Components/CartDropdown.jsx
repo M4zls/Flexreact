@@ -109,13 +109,22 @@ export default function CartDropdown({ isOpen, onClose }) {
                 ${obtenerTotal().toLocaleString('es-CL')}
               </span>
             </div>
-            <Link
-              href="/carrito"
-              onClick={onClose}
-              className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-center py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all hover:shadow-lg"
-            >
-              Ver Carrito Completo
-            </Link>
+            <div className="space-y-2">
+              <Link
+                href="/pago"
+                onClick={onClose}
+                className="block w-full bg-red-600 text-white text-center py-3 rounded-xl font-semibold hover:bg-red-700 transition-all hover:shadow-lg"
+              >
+                Proceder al Pago
+              </Link>
+              <Link
+                href="/carrito"
+                onClick={onClose}
+                className="block w-full bg-gray-200 text-gray-800 text-center py-2 rounded-xl font-medium hover:bg-gray-300 transition-colors text-sm"
+              >
+                Ver Carrito Completo
+              </Link>
+            </div>
           </div>
         )}
       </div>

@@ -9,8 +9,8 @@ export default function Page() {
   return (
     <div>
       
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black relative">
-        <div className=" absolute w-full h-[20rem] bg-gradient-to-b from-transparent to-black z-999 bottom-0 left-0 "> </div>
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black relative ">
+        <div className=" absolute w-full h-[20rem] bg-gradient-to-b from-transparent to-black z-20 bottom-0 left-0 "> </div>
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-20 left-10 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl z-10 animate-blob"></div>
           <div className="absolute top-40 right-10 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-blob z-10 animation-delay-2000"></div>
@@ -36,7 +36,7 @@ export default function Page() {
           </p>
           <Link 
             href="/productos" 
-            className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-full font-semibold hover:scale-105 transition-transform duration-300 z-999animate-fade-in-delay-2"
+            className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-full font-semibold hover:scale-105 transition-transform duration-300 z-999 animate-fade-in-delay-2"
           >
             Ver Colección
             <ArrowRight className="w-5 h-5" />
@@ -73,7 +73,7 @@ export default function Page() {
 
 
       <section className="py-[66px] px-6 bg-black relative">
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+        <div className="max-w-4xl mx-auto text-center relative z-50">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Únete a nuestra comunidad
           </h2>
@@ -82,7 +82,7 @@ export default function Page() {
           </p>
           <Link
             href="/registro"
-            className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-full font-semibold hover:scale-105 transition-transform duration-300"
+            className="inline-flex items-center gap-2 bg-white text-black px-8  py-4 rounded-full font-semibold hover:scale-105 transition-transform duration-300"
           >
             Registrarse Ahora
             <ArrowRight className="w-5 h-5" />
