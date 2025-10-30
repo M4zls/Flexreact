@@ -14,12 +14,14 @@ function CuentaContent() {
   const { showConfirm, ConfirmDialog } = useConfirm();
   const [activeTab, setActiveTab] = useState('perfil');
 
-  // Manejar parámetros de búsqueda de forma segura
+  // Manejar parámetros de búsqueda de forma segura (solo en cliente)
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tab = urlParams.get('tab');
-    if (tab) {
-      setActiveTab(tab);
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+      if (tab) {
+        setActiveTab(tab);
+      }
     }
   }, []);
 
