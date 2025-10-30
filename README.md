@@ -1,4 +1,5 @@
 # Flex
 
-# Una pagina dedicada a la venta de zapatillas hecha con react en next.js
+# Una pagina dedicada a la venta de zapatillas hecha con react + next.js
+
 
