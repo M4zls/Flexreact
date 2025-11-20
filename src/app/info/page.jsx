@@ -9,6 +9,8 @@ import { useCart } from '../../context/CartContext';
 import { useToast } from '../../Components/Toast';
 import ProductCard from '../../Components/ProductCard';
 
+export const dynamic = 'force-dynamic';
+
 export default function ProductoDetalle() {
   const searchParams = useSearchParams();
   const router = useRouter();
