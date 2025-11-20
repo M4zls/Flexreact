@@ -6,6 +6,8 @@ import Navbar from '../Components/Navbar.jsx';
 import Footer from '../Components/Footer.jsx';
 import '../styles/globals.css';
 
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({ children }) {
   return (
     <html lang="es" className="bg-black z-10">

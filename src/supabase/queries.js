@@ -13,6 +13,8 @@ export async function getProducts() {
       .order('nombre', { ascending: true });
 
     if (error) throw error;
+
+    console.log('Datos obtenidos de Supabase:', data);
     
     // Mapear los datos de Supabase al formato que usa la app
     const mappedData = data?.map(product => ({
