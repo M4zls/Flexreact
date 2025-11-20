@@ -45,7 +45,7 @@ function ProductoDetalleContent() {
 
       setProduct(data);
 
-      const { data: related } = await getProductsByCategory(data.category);
+      const { data: related } = await getProductsByCategory(data.categoria);
       if (related) {
         setRelatedProducts(related.filter(p => p.id !== data.id).slice(0, 3));
       }
@@ -77,7 +77,7 @@ function ProductoDetalleContent() {
       agregarAlCarrito(product, selectedSize);
     }
 
-    showToast(`${quantity} ${product.name} (Talla ${selectedSize}) agregado${quantity > 1 ? 's' : ''} al carrito!`, 'success');
+    showToast(`${quantity} ${product.nombre} (Talla ${selectedSize}) agregado${quantity > 1 ? 's' : ''} al carrito!`, 'success');
     setSelectedSize('');
     setQuantity(1);
   };
@@ -90,7 +90,7 @@ function ProductoDetalleContent() {
     );
   };
 
-  const images = [product.image];
+  const images = [product.imagen];
 
   return (
     <div className="min-h-screen bg-black pt-20 sm:pt-28 pb-8 sm:pb-16">
@@ -116,7 +116,7 @@ function ProductoDetalleContent() {
             <div className="bg-gray-900 rounded-xl sm:rounded-2xl overflow-hidden aspect-square">
               <img
                 src={images[selectedImage]}
-                alt={product.name}
+                alt={product.nombre}
                 className="w-full h-full object-contain p-4 sm:p-8"
               />
             </div>
@@ -135,7 +135,7 @@ function ProductoDetalleContent() {
                   >
                     <img
                       src={img}
-                      alt={`${product.name} ${idx + 1}`}
+                      alt={`${product.nombre} ${idx + 1}`}
                       className="w-full h-full object-contain p-2"
                     />
                   </button>
@@ -149,7 +149,7 @@ function ProductoDetalleContent() {
             {/* Categoría y Favorito */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-400 uppercase tracking-wide">
-                {product.category}
+                {product.categoria}
               </span>
               <button
                 onClick={toggleFavorite}
@@ -168,7 +168,7 @@ function ProductoDetalleContent() {
             {/* Nombre */}
             <div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3">
-                {product.name}
+                {product.nombre}
               </h1>
               <div className="flex items-center gap-2">
                 <span className="text-yellow-400 font-medium text-sm sm:text-base">★★★★★</span>
@@ -180,15 +180,15 @@ function ProductoDetalleContent() {
             <div className="bg-gray-900 rounded-xl p-4 sm:p-6">
               <div className="flex flex-wrap items-baseline gap-2 sm:gap-3">
                 <span className="text-3xl sm:text-4xl font-bold text-white">
-                  ${product.price.toLocaleString('es-CL')}
+                  ${product.precio.toLocaleString('es-CL')}
                 </span>
-                {product.discount && (
+                {product.descuento && (
                   <>
                     <span className="text-gray-400 line-through text-sm sm:text-base">
-                      ${Math.round(product.price / (1 - product.discount / 100)).toLocaleString('es-CL')}
+                      ${Math.round(product.precio / (1 - product.descuento / 100)).toLocaleString('es-CL')}
                     </span>
                     <span className="bg-red-600 text-white text-xs sm:text-sm font-semibold px-2 sm:px-3 py-1 rounded-full">
-                      -{product.discount}%
+                      -{product.descuento}%
                     </span>
                   </>
                 )}
@@ -209,7 +209,7 @@ function ProductoDetalleContent() {
                 </button>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3">
-                {product.sizes.map((size) => (
+                {product.tallas.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}

@@ -28,7 +28,7 @@ export default function ProductCard({ product, index }) {
     setShowSizes(false);
     
     // Mostrar feedback
-    showToast(`${product.name} (Talla ${selectedSize}) agregado al carrito!`, 'success');
+    showToast(`${product.nombre} (Talla ${selectedSize}) agregado al carrito!`, 'success');
   };
 
   return (
@@ -39,18 +39,18 @@ export default function ProductCard({ product, index }) {
     >
       {/* Category Badge */}
       <div className="absolute top-8 right-8 bg-black text-white text-xs px-3 py-1 rounded-full mobile-badge">
-        {product.category}
+        {product.categoria}
       </div>
 
       {/* Discount Badge */}
-      {product.discount && (
+      {product.descuento && (
         <div className="absolute top-8 left-8 bg-red-600 text-white text-xs px-3 py-1 rounded-full font-semibold mobile-badge">
-          -{product.discount}%
+          -{product.descuento}%
         </div>
       )}
 
       {/* Stock Badge */}
-      {product.stock < 5 && !product.discount && (
+      {product.stock < 5 && !product.descuento && (
         <div className="absolute top-8 left-8 bg-red-500 text-white text-xs px-3 py-1 rounded-full mobile-badge">
           ¡Solo {product.stock}!
         </div>
@@ -59,8 +59,8 @@ export default function ProductCard({ product, index }) {
       {/* Product Image */}
       <div className="relative h-64 mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 mobile-image">
         <img
-          src={product.image}
-          alt={product.name}
+          src={product.imagen}
+          alt={product.nombre}
           className="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-500"
         />
       </div>
@@ -68,7 +68,7 @@ export default function ProductCard({ product, index }) {
       {/* Product Info */}
       <div className="space-y-3">
         <h3 className="text-xl font-bold text-gray-900 mobile-title">
-          {product.name}
+          {product.nombre}
         </h3>
 
         {/* Size Selector */}
@@ -76,7 +76,7 @@ export default function ProductCard({ product, index }) {
           <div className="animate-fade-in" onClick={(e) => e.stopPropagation()}>
             <p className="text-sm font-semibold text-gray-700 mb-2 mobile-size-label">Selecciona tu talla:</p>
             <div className="grid grid-cols-4 gap-2 mobile-size-grid">
-              {product.sizes.map((size) => (
+              {product.tallas.map((size) => (
                 <button
                   key={size}
                   onClick={(e) => {
@@ -99,11 +99,11 @@ export default function ProductCard({ product, index }) {
         <div className="flex items-center justify-between pt-4">
           <div className="flex flex-col">
             <span className="text-2xl font-bold text-gray-900 mobile-price">
-              ${product.price.toLocaleString('es-CL')}
+              ${product.precio.toLocaleString('es-CL')}
             </span>
-            {product.discount && (
+            {product.descuento && (
               <span className="text-sm text-gray-500 line-through mobile-old-price">
-                ${Math.round(product.price / (1 - product.discount / 100)).toLocaleString('es-CL')}
+                ${Math.round(product.precio / (1 - product.descuento / 100)).toLocaleString('es-CL')}
               </span>
             )}
           </div>

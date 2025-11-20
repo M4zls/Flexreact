@@ -51,8 +51,8 @@ export default function CartDropdown({ isOpen, onClose }) {
                   {/* Image */}
                   <div className="w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0">
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.imagen}
+                      alt={item.nombre}
                       className="w-full h-full object-contain"
                     />
                   </div>
@@ -60,11 +60,11 @@ export default function CartDropdown({ isOpen, onClose }) {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-gray-900 text-sm truncate">
-                      {item.name}
+                      {item.nombre}
                     </h4>
                     <p className="text-xs text-gray-600 mt-1">Talla: {item.size}</p>
                     <p className="text-sm font-bold text-gray-900 mt-1">
-                      ${item.price.toLocaleString('es-CL')}
+                      ${item.precio.toLocaleString('es-CL')}
                     </p>
 
                     {/* Quantity Controls */}

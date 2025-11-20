@@ -286,14 +286,14 @@ export const ResumenPedido = ({ cart, total, costoEnvio, totalFinal, loading, pr
                 <div key={`${item.id}-${item.size}`} className="flex gap-3">
                     <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                         <img
-                            src={item.image}
-                            alt={item.name}
+                            src={item.imagen}
+                            alt={item.nombre}
                             className="w-full h-full object-contain"
                         />
                     </div>
                     <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-gray-900 text-sm truncate">
-                            {item.name}
+                            {item.nombre}
                         </h4>
                         <p className="text-xs text-gray-600">Talla: {item.size}</p>
                         <div className="flex justify-between items-center mt-1">
@@ -301,7 +301,7 @@ export const ResumenPedido = ({ cart, total, costoEnvio, totalFinal, loading, pr
                                 Cantidad: {item.quantity}
                             </span>
                             <span className="text-sm font-semibold text-gray-900">
-                                ${(item.price * item.quantity).toLocaleString('es-CL')}
+                                ${(item.precio * item.quantity).toLocaleString('es-CL')}
                             </span>
                         </div>
                     </div>

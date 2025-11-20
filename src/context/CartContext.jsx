@@ -20,7 +20,7 @@ export function CartProvider({ children }) {
     };
 
     const obtenerTotal = () => {
-        return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        return cart.reduce((total, item) => total + (item.precio * item.quantity), 0);
     };
 
     const agregarAlCarrito = (producto, size) => {

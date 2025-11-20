@@ -288,8 +288,8 @@ export default function Cuenta() {
                                   <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                                     <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                                       <img
-                                        src={producto.image || '/placeholder.jpg'}
-                                        alt={producto.name || 'Producto'}
+                                        src={producto.imagen || '/placeholder.jpg'}
+                                        alt={producto.nombre || 'Producto'}
                                         className="w-full h-full object-contain"
                                         onError={(e) => {
                                           if (e.target instanceof HTMLImageElement) {
@@ -300,13 +300,13 @@ export default function Cuenta() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className="font-medium text-sm text-gray-900 truncate">
-                                        {producto.name || 'Producto'}
+                                        {producto.nombre || 'Producto'}
                                       </p>
                                       <p className="text-xs text-gray-600">
                                         Talla: {producto.size || 'N/A'} | Qty: {producto.quantity || 1}
                                       </p>
                                       <p className="text-sm font-semibold text-gray-900">
-                                        ${((producto.price || 0) * (producto.quantity || 1)).toLocaleString('es-CL')}
+                                        ${((producto.precio || 0) * (producto.quantity || 1)).toLocaleString('es-CL')}
                                       </p>
                                     </div>
                                   </div>

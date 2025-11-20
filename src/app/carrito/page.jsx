@@ -45,8 +45,8 @@ export default function Carrito() {
                   {/* Image */}
                   <div className="w-full sm:w-24 md:w-32 h-32 sm:h-24 md:h-32 bg-white rounded-xl overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.imagen}
+                      alt={item.nombre}
                       className="w-full h-full object-contain p-3 sm:p-4"
                     />
                   </div>
@@ -55,11 +55,11 @@ export default function Carrito() {
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                        {item.name}
+                        {item.nombre}
                       </h3>
                       <p className="text-gray-400 text-xs sm:text-sm mb-1">Talla: {item.size}</p>
                       <p className="text-white font-bold text-base sm:text-lg">
-                        ${item.price.toLocaleString('es-CL')}
+                        ${item.precio.toLocaleString('es-CL')}
                       </p>
                     </div>
 
@@ -96,7 +96,7 @@ export default function Carrito() {
                   <div className="text-right">
                     <p className="text-gray-400 text-sm mb-2">Subtotal</p>
                     <p className="text-white font-bold text-xl">
-                      ${(item.price * item.quantity).toLocaleString('es-CL')}
+                      ${(item.precio * item.quantity).toLocaleString('es-CL')}
                     </p>
                   </div>
                 </div>

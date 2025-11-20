@@ -4,6 +4,7 @@ import { supabase } from './supabase';
 export async function getProducts() {
   try {
     if (!supabase) {
+      console.error('Error: Supabase no está configurado');
       return { data: [], error: new Error('Supabase no está configurado') };
     }
     
@@ -12,25 +13,15 @@ export async function getProducts() {
       .select('*')
       .order('nombre', { ascending: true });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error en la consulta de Supabase:', error);
+      return { data: [], error };
+    }
 
-    console.log('Datos obtenidos de Supabase:', data);
-    
-    // Mapear los datos de Supabase al formato que usa la app
-    const mappedData = data?.map(product => ({
-      id: product.id,
-      name: product.nombre,
-      price: product.precio,
-      image: product.imagen,
-      category: product.categoria,
-      sizes: product.tallas,
-      discount: product.descuento
-    }));
-
-    return { data: mappedData, error: null };
+    return { data: data, error: null };
   } catch (error) {
     console.error('Error al obtener productos:', error);
-    return { data: null, error };
+    return { data: [], error };
   }
 }
 
@@ -49,18 +40,8 @@ export async function getProductById(id) {
 
     if (error) throw error;
 
-    // Mapear los datos de Supabase al formato que usa la app
-    const mappedData = {
-      id: data.id,
-      name: data.nombre,
-      price: data.precio,
-      image: data.imagen,
-      category: data.categoria,
-      sizes: data.tallas,
-      discount: data.descuento
-    };
-
-    return { data: mappedData, error: null };
+    // Ya no necesitamos mapeo, devolvemos los datos directamente
+    return { data: data, error: null };
   } catch (error) {
     console.error('Error al obtener producto:', error);
     return { data: null, error };
@@ -82,18 +63,8 @@ export async function getProductsByCategory(category) {
 
     if (error) throw error;
 
-    // Mapear los datos de Supabase al formato que usa la app
-    const mappedData = data?.map(product => ({
-      id: product.id,
-      name: product.nombre,
-      price: product.precio,
-      image: product.imagen,
-      category: product.categoria,
-      sizes: product.tallas,
-      discount: product.descuento
-    }));
-
-    return { data: mappedData, error: null };
+    
+    return { data: data, error: null };
   } catch (error) {
     console.error('Error al obtener productos por categoría:', error);
     return { data: null, error };
