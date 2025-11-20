@@ -3,6 +3,10 @@ import { supabase } from './supabase';
 // Obtener todos los productos
 export async function getProducts() {
   try {
+    if (!supabase) {
+      return { data: [], error: new Error('Supabase no está configurado') };
+    }
+    
     const { data, error } = await supabase
       .from('productos')
       .select('*')
@@ -31,6 +35,10 @@ export async function getProducts() {
 // Obtener un producto por ID
 export async function getProductById(id) {
   try {
+    if (!supabase) {
+      return { data: null, error: new Error('Supabase no está configurado') };
+    }
+    
     const { data, error } = await supabase
       .from('productos')
       .select('*')
@@ -60,6 +68,10 @@ export async function getProductById(id) {
 // Obtener productos por categoría
 export async function getProductsByCategory(category) {
   try {
+    if (!supabase) {
+      return { data: [], error: new Error('Supabase no está configurado') };
+    }
+    
     const { data, error } = await supabase
       .from('productos')
       .select('*')
