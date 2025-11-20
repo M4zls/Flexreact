@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShoppingCart, Heart, ArrowLeft, Check, Truck, Shield, RefreshCw } from 'lucide-react';
@@ -11,7 +11,7 @@ import ProductCard from '../../Components/ProductCard';
 
 export const dynamic = 'force-dynamic';
 
-export default function ProductoDetalle() {
+function ProductoDetalleContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { agregarAlCarrito } = useCart();
@@ -324,5 +324,20 @@ export default function ProductoDetalle() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ProductoDetalle() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen pt-28 px-4 sm:px-6 bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white text-xl">Cargando producto...</p>
+        </div>
+      </div>
+    }>
+      <ProductoDetalleContent />
+    </Suspense>
   );
 }
