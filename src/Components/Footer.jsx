@@ -1,7 +1,8 @@
-﻿export default function Footer() {
+﻿
+export default function Footer() {
   return (
-    <footer className="relative  bg-gradient-to-t from-[#4e179a56] via-black to-[#4e179a56] text-white py-15 ">
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+    <footer className="relative bg-gradient-to-t from-purple-900/40 via-black to-black text-white py-12">
+      <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 to-transparent"></div>
       <div className="relative max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>

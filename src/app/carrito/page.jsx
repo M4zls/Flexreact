@@ -8,56 +8,57 @@ export default function Carrito() {
   const { cart, eliminarDelCarrito, actualizarCantidad, obtenerTotal, limpiarCarrito } = useCart();
 
   return (
-    <div className="min-h-screen bg-black py-20 px-6">
+    <div className="min-h-screen bg-black pt-20 sm:pt-28 px-4 sm:px-6 pb-8 sm:pb-12">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-white">Carrito de Compras</h1>
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Carrito de Compras</h1>
           <Link 
             href="/productos"
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm sm:text-base"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Seguir Comprando
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Seguir Comprando</span>
+            <span className="sm:hidden">Volver</span>
           </Link>
         </div>
 
         {cart.length === 0 ? (
-          <div className="text-center py-20">
-            <ShoppingBag className="w-24 h-24 text-gray-700 mx-auto mb-6" />
-            <p className="text-gray-400 text-xl mb-4">Tu carrito está vacío</p>
+          <div className="text-center py-12 sm:py-20">
+            <ShoppingBag className="w-16 h-16 sm:w-24 sm:h-24 text-gray-700 mx-auto mb-4 sm:mb-6" />
+            <p className="text-gray-400 text-lg sm:text-xl mb-4">Tu carrito está vacío</p>
             <Link 
               href="/productos"
-              className="inline-block bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-gray-200 transition-colors"
+              className="inline-block bg-white text-black px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-semibold hover:bg-gray-200 transition-colors text-sm sm:text-base"
             >
               Ver Productos
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-3 sm:space-y-4">
               {cart.map((item) => (
                 <div 
                   key={`${item.id}-${item.size}`} 
-                  className="bg-gray-900 rounded-2xl p-6 flex gap-6 hover:bg-gray-800 transition-colors"
+                  className="bg-gray-900 rounded-xl sm:rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 hover:bg-gray-800 transition-colors"
                 >
                   {/* Image */}
-                  <div className="w-32 h-32 bg-white rounded-xl overflow-hidden flex-shrink-0">
+                  <div className="w-full sm:w-24 md:w-32 h-32 sm:h-24 md:h-32 bg-white rounded-xl overflow-hidden flex-shrink-0 mx-auto sm:mx-0">
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-full h-full object-contain p-4"
+                      className="w-full h-full object-contain p-3 sm:p-4"
                     />
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
-                      <h3 className="text-xl font-bold text-white mb-2">
+                      <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
                         {item.name}
                       </h3>
-                      <p className="text-gray-400 text-sm mb-1">Talla: {item.size}</p>
-                      <p className="text-white font-bold text-lg">
+                      <p className="text-gray-400 text-xs sm:text-sm mb-1">Talla: {item.size}</p>
+                      <p className="text-white font-bold text-base sm:text-lg">
                         ${item.price.toLocaleString('es-CL')}
                       </p>
                     </div>

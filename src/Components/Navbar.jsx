@@ -15,18 +15,18 @@ export default function Navbar() {
     const cantidadProductos = obtenerCantidadTotal();
 
     return (
-        <header className="w-full fixed top-4 z-50 px-4">
-            <nav className="max-w-6xl mx-auto bg-black/90 backdrop-blur-md rounded-full border border-white/10 px-10 shadow-lg shadow-black/20 relative">
-                <div className="flex items-center justify-between h-20">
-                    <Link href="/" className="flex items-center gap-4">
+        <header className="w-full fixed top-4 z-50 px-2 sm:px-4">
+            <nav className="max-w-6xl mx-auto bg-black/95 backdrop-blur-md rounded-2xl sm:rounded-full border border-white/10 px-4 sm:px-10 shadow-lg shadow-black/20 relative">
+                <div className="flex items-center justify-between h-16 sm:h-20">
+                    <Link href="/" className="flex items-center gap-2">
                         <img 
                             src="/Img/Gemini_Generated_Image_boosgqboosgqboos.png" 
                             alt="Logo" 
-                            className="w-18 h-auto brightness-0 invert "
+                            className="w-12 sm:w-16 h-auto brightness-0 invert"
                         />
                     </Link>
                     
-                    <div className="hidden md:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
+                    <div className="hidden lg:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
                         <Link href="/" className="text-[16px] text-gray-300 hover:text-red-500 transition-colors">
                             Inicio
                         </Link>
@@ -42,15 +42,15 @@ export default function Navbar() {
                         </Link>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="hidden md:flex items-center gap-3">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="hidden lg:flex items-center gap-3">
                             {user ? (
                                 <Link 
                                     href="/cuenta" 
                                     className="flex items-center gap-2 text-[14px] text-gray-300 hover:text-red-500 transition-colors"
                                 >
                                     <User className="w-4 h-4" />
-                                    {user.nombre.split(' ')[0]}
+                                    <span className="hidden xl:inline">{user.nombre.split(' ')[0]}</span>
                                 </Link>
                             ) : (
                                 <>
@@ -85,32 +85,33 @@ export default function Navbar() {
                         
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="md:hidden text-gray-300 hover:text-white transition-colors"
+                            className="lg:hidden text-gray-300 hover:text-white transition-colors"
                         >
                             {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                         </button>
                     </div>
                 </div>
             </nav>
+            
             {isOpen && (
-                <div className="md:hidden mt-2 max-w-5xl mx-auto bg-black/90 backdrop-blur-md rounded-2xl border border-white/10 px-6 py-3 space-y-1 shadow-lg shadow-black/20">
-                    <Link href="/" className="block text-[13px] text-gray-300 hover:text-white transition-colors py-2" onClick={() => setIsOpen(false)}>
+                <div className="lg:hidden mt-2 mx-2 bg-black/95 backdrop-blur-md rounded-2xl border border-white/10 px-4 py-4 space-y-1 shadow-lg shadow-black/20">
+                    <Link href="/" className="block text-sm text-gray-300 hover:text-white transition-colors py-2.5 px-3 rounded-lg hover:bg-white/5" onClick={() => setIsOpen(false)}>
                         Inicio
                     </Link>
-                    <Link href="/productos" className="block text-[13px] text-gray-300 hover:text-white transition-colors py-2" onClick={() => setIsOpen(false)}>
+                    <Link href="/productos" className="block text-sm text-gray-300 hover:text-white transition-colors py-2.5 px-3 rounded-lg hover:bg-white/5" onClick={() => setIsOpen(false)}>
                         Productos
                     </Link>
-                    <Link href="/nosotros" className="block text-[13px] text-gray-300 hover:text-white transition-colors py-2" onClick={() => setIsOpen(false)}>
+                    <Link href="/nosotros" className="block text-sm text-gray-300 hover:text-white transition-colors py-2.5 px-3 rounded-lg hover:bg-white/5" onClick={() => setIsOpen(false)}>
                         Nosotros
                     </Link>
-                    <Link href="/contacto" className="block text-[13px] text-gray-300 hover:text-white transition-colors py-2" onClick={() => setIsOpen(false)}>
+                    <Link href="/contacto" className="block text-sm text-gray-300 hover:text-white transition-colors py-2.5 px-3 rounded-lg hover:bg-white/5" onClick={() => setIsOpen(false)}>
                         Contacto
                     </Link>
-                    <div className="border-t border-white/10 mt-2 pt-2 space-y-2">
+                    <div className="border-t border-white/10 mt-2 pt-2 space-y-1">
                         {user ? (
                             <Link 
                                 href="/cuenta" 
-                                className="flex items-center gap-2 text-[13px] text-gray-300 hover:text-white transition-colors py-2" 
+                                className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors py-2.5 px-3 rounded-lg hover:bg-white/5" 
                                 onClick={() => setIsOpen(false)}
                             >
                                 <User className="w-4 h-4" />
@@ -118,12 +119,12 @@ export default function Navbar() {
                             </Link>
                         ) : (
                             <>
-                                <Link href="/login" className="block text-[13px] text-gray-300 hover:text-white transition-colors py-2" onClick={() => setIsOpen(false)}>
+                                <Link href="/login" className="block text-sm text-gray-300 hover:text-white transition-colors py-2.5 px-3 rounded-lg hover:bg-white/5" onClick={() => setIsOpen(false)}>
                                     Login
                                 </Link>
                                 <Link 
                                     href="/registro" 
-                                    className="block text-center text-[13px] bg-white text-black px-4 py-2 rounded-full hover:bg-gray-200 transition-colors font-medium"
+                                    className="block text-center text-sm bg-white text-black px-4 py-2.5 rounded-full hover:bg-gray-200 transition-colors font-medium mx-3 mt-2"
                                     onClick={() => setIsOpen(false)}
                                 >
                                     Registro
