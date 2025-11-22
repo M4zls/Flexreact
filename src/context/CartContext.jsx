@@ -6,7 +6,7 @@ const CartContext = createContext({
     cart: [],
     obtenerCantidadTotal: () => 0,
     obtenerTotal: () => 0,
-    agregarAlCarrito: (producto, size) => {},
+    agregarAlCarrito: (producto, size, cantidad = 1) => {},
     eliminarDelCarrito: (id, size) => {},
     actualizarCantidad: (id, size, cantidad) => {},
     limpiarCarrito: () => {}
@@ -23,17 +23,17 @@ export function CartProvider({ children }) {
         return cart.reduce((total, item) => total + (item.precio * item.quantity), 0);
     };
 
-    const agregarAlCarrito = (producto, size) => {
+    const agregarAlCarrito = (producto, size, cantidad = 1) => {
         setCart((prevCart) => {
             const existente = prevCart.find(item => item.id === producto.id && item.size === size);
             if (existente) {
                 return prevCart.map(item =>
                     item.id === producto.id && item.size === size
-                        ? { ...item, quantity: item.quantity + 1 }
+                        ? { ...item, quantity: item.quantity + cantidad }
                         : item
                 );
             }
-            return [...prevCart, { ...producto, size, quantity: 1 }];
+            return [...prevCart, { ...producto, size, quantity: cantidad }];
         });
     };
 

@@ -1,34 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart } from 'lucide-react';
-import { useCart } from '../context/CartContext';
-import { useToast } from './Toast';
 
 export default function ProductCard({ product, index }) {
-  const [selectedSize, setSelectedSize] = useState('');
-  const [showSizes, setShowSizes] = useState(false);
-  const { agregarAlCarrito } = useCart();
-  const { showToast } = useToast();
   const router = useRouter();
 
   const handleCardClick = () => {
     router.push(`/info?id=${product.id}`);
-  };
-
-  const handleAddToCart = (e) => {
-    e.stopPropagation();
-    if (!selectedSize) {
-      setShowSizes(true);
-      return;
-    }
-    agregarAlCarrito(product, selectedSize);
-    setSelectedSize('');
-    setShowSizes(false);
-    
-    // Mostrar feedback
-    showToast(`${product.nombre} (Talla ${selectedSize}) agregado al carrito!`, 'success');
   };
 
   return (
@@ -59,9 +37,14 @@ export default function ProductCard({ product, index }) {
       {/* Product Image */}
       <div className="relative h-64 mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 mobile-image">
         <img
-          src={product.imagen}
+          src={product.imagen || '/Img/placeholder.png'}
           alt={product.nombre}
           className="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-500"
+          onError={(e) => { 
+            if (e.currentTarget instanceof HTMLImageElement) {
+              e.currentTarget.src = '/Img/placeholder.png';
+            }
+          }}
         />
       </div>
 
@@ -71,48 +54,23 @@ export default function ProductCard({ product, index }) {
           {product.nombre}
         </h3>
 
-        {/* Size Selector */}
-        {showSizes && (
-          <div className="animate-fade-in" onClick={(e) => e.stopPropagation()}>
-            <p className="text-sm font-semibold text-gray-700 mb-2 mobile-size-label">Selecciona tu talla:</p>
-            <div className="grid grid-cols-4 gap-2 mobile-size-grid">
-              {product.tallas.map((size) => (
-                <button
-                  key={size}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedSize(size);
-                  }}
-                  className={`py-2 px-3 text-sm font-medium rounded-lg border-2 transition-all mobile-size-button ${
-                    selectedSize === size
-                      ? 'border-black bg-black text-white'
-                      : 'border-gray-300 hover:border-gray-400 bg-white text-gray-700'
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         <div className="flex items-center justify-between pt-4">
           <div className="flex flex-col">
-            <span className="text-2xl font-bold text-gray-900 mobile-price">
-              ${product.precio.toLocaleString('es-CL')}
-            </span>
-            {product.descuento && (
-              <span className="text-sm text-gray-500 line-through mobile-old-price">
-                ${Math.round(product.precio / (1 - product.descuento / 100)).toLocaleString('es-CL')}
+            {product.descuento ? (
+              <>
+                <span className="text-2xl font-bold text-red-600 mobile-price">
+                  ${Math.round(product.precio * (1 - product.descuento / 100)).toLocaleString('es-CL')}
+                </span>
+                <span className="text-sm text-gray-500 line-through mobile-old-price">
+                  ${product.precio.toLocaleString('es-CL')}
+                </span>
+              </>
+            ) : (
+              <span className="text-2xl font-bold text-gray-900 mobile-price">
+                ${product.precio.toLocaleString('es-CL')}
               </span>
             )}
           </div>
-          <button 
-            onClick={handleAddToCart}
-            className="bg-black text-white p-3 rounded-full hover:scale-110 transition-transform duration-300 hover:bg-gray-800 mobile-cart-button"
-          >
-            <ShoppingCart className="w-5 h-5" />
-          </button>
         </div>
       </div>
 

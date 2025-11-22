@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState, useEffect } from 'react';
-import { getProducts } from '../../supabase/queries';
+import { obtenerProductos } from '../../services/api';
 import ProductCard from '../../Components/ProductCard.jsx';
 import { useToast } from '../../Components/Toast';
 
@@ -13,13 +13,14 @@ export default function ProductosPage() {
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
-      const { data, error } = await getProducts();
-      if (error) {
+      try {
+        const response = await obtenerProductos();
+        setProducts(Array.isArray(response) ? response : []);
+      } catch (error) {
         console.error('Error al cargar productos:', error);
-      } else {
-        setProducts(data || []);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchProducts();
   }, []);

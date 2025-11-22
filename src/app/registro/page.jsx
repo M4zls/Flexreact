@@ -14,15 +14,13 @@ export default function Registro() {
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   
   const [errores, setErrores] = useState({
     nombre: '',
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [loading, setLoading] = useState(false);
 
@@ -63,12 +61,6 @@ export default function Registro() {
       nuevosErrores.password = 'La contraseña es requerida';
     } else if (formData.password.length < 8 || formData.password.length > 12) {
       nuevosErrores.password = 'La contraseña debe tener entre 8 y 12 caracteres';
-    }
-    
-    if (!formData.confirmPassword) {
-      nuevosErrores.confirmPassword = 'Debes confirmar la contraseña';
-    } else if (formData.password !== formData.confirmPassword) {
-      nuevosErrores.confirmPassword = 'Las contraseñas no coinciden';
     }
     
     setErrores(nuevosErrores);
@@ -164,26 +156,6 @@ export default function Registro() {
             <p className="text-xs text-gray-500 mt-1">
               Entre 8 y 12 caracteres
             </p>
-          </div>
-          
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-              Confirmar contraseña *
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent ${
-                errores.confirmPassword ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="••••••••"
-            />
-            {errores.confirmPassword && (
-              <p className="text-red-500 text-sm mt-1">{errores.confirmPassword}</p>
-            )}
           </div>
           
           <button

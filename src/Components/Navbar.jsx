@@ -50,7 +50,7 @@ export default function Navbar() {
                                     className="flex items-center gap-2 text-[14px] text-gray-300 hover:text-red-500 transition-colors"
                                 >
                                     <User className="w-4 h-4" />
-                                    <span className="hidden xl:inline">{user.nombre.split(' ')[0]}</span>
+                                    <span className="hidden xl:inline">{user.nombre?.split(' ')[0] || 'Usuario'}</span>
                                 </Link>
                             ) : (
                                 <>
@@ -115,7 +115,7 @@ export default function Navbar() {
                                 onClick={() => setIsOpen(false)}
                             >
                                 <User className="w-4 h-4" />
-                                {user.nombre.split(' ')[0]}
+                                {user.nombre?.split(' ')[0] || 'Usuario'}
                             </Link>
                         ) : (
                             <>

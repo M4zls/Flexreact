@@ -8,6 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../Components/Toast';
+import { crearPedido } from '../../services/api';
 import { 
     metodosEnvio, 
     initialFormData, 
@@ -27,7 +28,7 @@ export default function PagoPage() {
     // Hooks
     const router = useRouter();
     const { cart, obtenerTotal, limpiarCarrito } = useCart();
-    const { user, agregarPedido } = useAuth();
+    const { user, token, agregarPedido } = useAuth();
     const { showToast, ToastContainer } = useToast();
     
     // Estados
@@ -153,48 +154,55 @@ export default function PagoPage() {
         setProcesando(true);
         
         try {
-            // Simular procesamiento de pago
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            // Verificar que el usuario esté autenticado
+            if (!user || !token) {
+                showToast('Debes iniciar sesión para realizar el pedido', 'error');
+                router.push('/login');
+                return;
+            }
             
-            // Crear el pedido
+            console.log('=== DEBUG CREAR PEDIDO ===');
+            console.log('User:', user);
+            console.log('Token presente:', !!token);
+            console.log('Token length:', token?.length);
+            console.log('=========================');
+            
+            // Crear el pedido con la estructura correcta para el backend
             const pedidoData = {
-                productos: cart,
+                email: user.email,
+                nombre: user.nombre,
+                items: cart.map(item => ({
+                    productoId: item.id,
+                    cantidad: item.quantity || 1, 
+                    precioUnitario: item.descuento 
+                        ? Math.round(item.precio * (1 - item.descuento / 100))
+                        : item.precio
+                })),
                 total: totalFinal,
-                direccion: {
-                    nombre: formData.nombre,
-                    apellido: formData.apellido,
-                    email: formData.email,
-                    telefono: formData.telefono,
-                    direccion: formData.direccion,
-                    ciudad: formData.ciudad,
-                    region: formData.region,
-                    codigoPostal: formData.codigoPostal
-                },
-                metodoEnvio: {
-                    id: formData.metodoEnvio,
-                    nombre: metodoSeleccionado?.nombre,
-                    precio: costoEnvio
-                },
-                metodoPago: {
-                    numeroTarjeta: formData.numeroTarjeta.replace(/\s/g, ''),
-                    nombreTarjeta: formData.nombreTarjeta
-                }
+                direccionEnvio: `${formData.direccion}, ${formData.ciudad}, ${formData.region}, ${formData.codigoPostal}`,
+                metodoPago: 'Tarjeta de Crédito'
             };
             
-            // Agregar pedido al usuario
-            agregarPedido(pedidoData);
+            console.log('Pedido data:', JSON.stringify(pedidoData, null, 2));
+            
+            // Llamar al backend para crear el pedido
+            const response = await crearPedido(pedidoData, token);
+            
+            console.log('Pedido creado:', response);
             
             // Limpiar carrito
             limpiarCarrito();
             setPagoCompletado(true);
             setProcesando(false);
             
+            showToast('¡Pedido realizado exitosamente!', 'success');
+            
             // Auto-redirect después de 3 segundos
             setTimeout(() => router.push('/cuenta?tab=pedidos'), 3000);
             
         } catch (error) {
             console.error('Error procesando pago:', error);
-            showToast('Hubo un error procesando tu pago. Intenta nuevamente.', 'error');
+            showToast('Hubo un error procesando tu pedido. Intenta nuevamente.', 'error');
             setProcesando(false);
         } finally {
             setLoading(false);

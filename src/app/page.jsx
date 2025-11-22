@@ -3,26 +3,47 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { getProducts } from '../supabase/queries';
+import { obtenerProductos } from '../services/api';
 import ProductCard from '../Components/ProductCard';
 
 export default function Page() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
-      const { data, error } = await getProducts();
-      if (error) {
+      try {
+        const response = await obtenerProductos();
+        // Filtrar solo productos con descuento
+        const discountedProducts = Array.isArray(response) 
+          ? response.filter(p => p.descuento && p.descuento > 0)
+          : [];
+        setProducts(discountedProducts);
+      } catch (error) {
         console.error('Error al cargar productos:', error);
-      } else {
-        setProducts(data || []);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchProducts();
   }, []);
+
+  const itemsPerSlide = 2;
+  const totalSlides = Math.ceil(products.length / itemsPerSlide);
+
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex >= totalSlides - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex <= 0 ? totalSlides - 1 : prevIndex - 1
+    );
+  };
 
   return (
     <div>
@@ -44,13 +65,13 @@ export default function Page() {
         
         <div className="relative z-10 text-center px-5 sm:px-6 max-w-5xl mx-auto z-20">
           <h1 className="text-3xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-3 sm:mb-6 animate-fade-in leading-tight">
-            Forma tu camino hacia
+            Forma tu pasos hacia
             <span className="block bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
               El Futuro
             </span>
           </h1>
           <p className="text-sm sm:text-xl md:text-2xl text-gray-300 mb-5 sm:mb-8 animate-fade-in-delay px-2">
-            Descubre nuestro catálogo con las mejores marcas en chile
+            Descubre nuestro catálogo con los mejores pares de chile
           </p>
           <Link 
             href="/productos" 
@@ -67,7 +88,7 @@ export default function Page() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-12 md:mb-16">
             <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-1 sm:mb-4">
-              Productos Destacados
+              Productos En Oferta
             </h2>
           </div>
 
@@ -76,11 +97,69 @@ export default function Page() {
               <div className="w-10 h-10 sm:w-16 sm:h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-3 sm:mb-4"></div>
               <p className="text-white text-xs sm:text-base">Cargando productos...</p>
             </div>
+          ) : products.length > 0 ? (
+            <div className="relative">
+              {/* Botón Anterior */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white text-black p-3 rounded-full shadow-lg transition-all hover:scale-110 -ml-4"
+                aria-label="Anterior"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              {/* Carrusel */}
+              <div className="overflow-hidden px-8">
+                <div 
+                  className="flex transition-transform duration-500 ease-out"
+                  style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                >
+                  {Array.from({ length: totalSlides }).map((_, slideIndex) => (
+                    <div key={slideIndex} className="w-full flex-shrink-0 flex gap-4">
+                      {products
+                        .slice(slideIndex * itemsPerSlide, (slideIndex + 1) * itemsPerSlide)
+                        .map((product, index) => (
+                          <div key={product.id} className="w-1/2">
+                            <ProductCard product={product} index={index} />
+                          </div>
+                        ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Botón Siguiente */}
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white text-black p-3 rounded-full shadow-lg transition-all hover:scale-110 -mr-4"
+                aria-label="Siguiente"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* Indicadores */}
+              <div className="flex justify-center gap-2 mt-6">
+                {Array.from({ length: totalSlides }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentIndex(index)}
+                    className={`h-2 rounded-full transition-all ${
+                      index === currentIndex 
+                        ? 'w-8 bg-white' 
+                        : 'w-2 bg-white/40 hover:bg-white/60'
+                    }`}
+                    aria-label={`Ir a slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6 md:gap-8">
-              {products.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
-              ))}
+            <div className="text-center py-12">
+              <p className="text-white text-lg">No hay productos con descuento disponibles</p>
             </div>
           )}
 

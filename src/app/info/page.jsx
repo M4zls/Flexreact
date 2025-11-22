@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShoppingCart, Heart, ArrowLeft, Check, Truck, Shield, RefreshCw } from 'lucide-react';
-import { getProductById, getProductsByCategory } from '../../supabase/queries';
+import { obtenerProductoPorId, obtenerProductos } from '../../services/api';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../Components/Toast';
 import ProductCard from '../../Components/ProductCard';
@@ -35,22 +35,40 @@ function ProductoDetalleContent() {
       }
 
       setLoading(true);
-      const { data, error } = await getProductById(productId);
-      
-      if (error || !data) {
+      try {
+        const response = await obtenerProductoPorId(productId);
+        
+        if (!response) {
+          console.error('Error al cargar producto');
+          router.push('/productos');
+          return;
+        }
+
+        // Si el backend envía tallas con stock, usarlas. Si no, usar tallas estándar
+        // Formato backend: tallas: [{ talla: '38', stock: 5 }, { talla: '39', stock: 0 }, ...]
+        const productWithSizes = {
+          ...response,
+          tallas: response.tallas && response.tallas.length > 0 
+            ? response.tallas 
+            : ['38', '39', '40', '41', '42', '43', '44', '45'].map(t => ({ talla: t, stock: 999 }))
+        };
+        
+        setProduct(productWithSizes);
+
+        // Obtener productos relacionados por categoría
+        const allProducts = await obtenerProductos();
+        if (Array.isArray(allProducts)) {
+          const related = allProducts.filter(
+            p => p.categoria === response.categoria && p.id !== response.id
+          ).slice(0, 3);
+          setRelatedProducts(related);
+        }
+      } catch (error) {
         console.error('Error al cargar producto:', error);
         router.push('/productos');
-        return;
+      } finally {
+        setLoading(false);
       }
-
-      setProduct(data);
-
-      const { data: related } = await getProductsByCategory(data.categoria);
-      if (related) {
-        setRelatedProducts(related.filter(p => p.id !== data.id).slice(0, 3));
-      }
-
-      setLoading(false);
     }
 
     fetchProduct();
@@ -68,16 +86,19 @@ function ProductoDetalleContent() {
   }
 
   const handleAddToCart = () => {
-    if (!selectedSize) {
+    // Solo validar talla si el producto tiene tallas disponibles
+    if (product.tallas && product.tallas.length > 0 && !selectedSize) {
       showToast('Por favor selecciona una talla', 'warning');
       return;
     }
 
-    for (let i = 0; i < quantity; i++) {
-      agregarAlCarrito(product, selectedSize);
-    }
+    const tallaSeleccionada = (product.tallas && product.tallas.length > 0) ? selectedSize : 'Única';
 
-    showToast(`${quantity} ${product.nombre} (Talla ${selectedSize}) agregado${quantity > 1 ? 's' : ''} al carrito!`, 'success');
+    // Agregar toda la cantidad de una vez
+    agregarAlCarrito(product, tallaSeleccionada, quantity);
+
+    const tallaTexto = (product.tallas && product.tallas.length > 0) ? ` (Talla ${tallaSeleccionada})` : '';
+    showToast(`${quantity} ${product.nombre}${tallaTexto} agregado${quantity > 1 ? 's' : ''} al carrito!`, 'success');
     setSelectedSize('');
     setQuantity(1);
   };
@@ -199,58 +220,82 @@ function ProductoDetalleContent() {
             </div>
 
             {/* Selector de Talla */}
+            {product.tallas && product.tallas.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-white font-semibold text-sm sm:text-base">
+                    Selecciona tu talla:
+                  </label>
+                  <button className="text-xs sm:text-sm text-purple-400 hover:text-purple-300 transition-colors">
+                    Guía de tallas
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3">
+                  {product.tallas.map((tallaObj) => {
+                    const talla = typeof tallaObj === 'string' ? tallaObj : tallaObj.talla;
+                    const stock = typeof tallaObj === 'object' ? tallaObj.stock : 999;
+                    const disponible = stock > 0;
+                    
+                    return (
+                      <button
+                        key={talla}
+                        onClick={() => disponible && setSelectedSize(talla)}
+                        disabled={!disponible}
+                        className={`py-2 sm:py-3 px-2 sm:px-4 text-center font-medium rounded-lg border-2 transition-all text-sm sm:text-base relative ${
+                          !disponible
+                            ? 'border-gray-800 text-gray-600 cursor-not-allowed bg-gray-900'
+                            : selectedSize === talla
+                              ? 'border-white bg-white text-black'
+                              : 'border-gray-700 text-white hover:border-gray-500'
+                        }`}
+                      >
+                        {talla}
+                        {!disponible && (
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <span className="w-full h-0.5 bg-red-500 rotate-45"></span>
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-gray-400 mt-2">
+                  Las tallas tachadas no tienen stock disponible
+                </p>
+              </div>
+            )}
+
+            {/* Stock y Cantidad */}
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="text-white font-semibold text-sm sm:text-base">
-                  Selecciona tu talla:
+                  Cantidad:
                 </label>
-                <button className="text-xs sm:text-sm text-purple-400 hover:text-purple-300 transition-colors">
-                  Guía de tallas
-                </button>
-              </div>
-              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3">
-                {product.tallas.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`py-2 sm:py-3 px-2 sm:px-4 text-center font-medium rounded-lg border-2 transition-all text-sm sm:text-base ${
-                      selectedSize === size
-                        ? 'border-white bg-white text-black'
-                        : 'border-gray-700 text-white hover:border-gray-500'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Cantidad */}
-            <div>
-              <label className="text-white font-semibold mb-3 block text-sm sm:text-base">
-                Cantidad:
-              </label>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-                <div className="flex items-center bg-gray-900 rounded-lg">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 sm:px-4 py-2 text-white hover:bg-gray-800 rounded-l-lg transition-colors"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 sm:px-6 py-2 text-white font-semibold">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity(Math.min(10, quantity + 1))}
-                    className="px-3 sm:px-4 py-2 text-white hover:bg-gray-800 rounded-r-lg transition-colors"
-                  >
-                    +
-                  </button>
-                </div>
-                <span className="text-gray-400 text-xs sm:text-sm">
-                  (Máximo 10 unidades)
+                <span className="text-green-400 text-xs sm:text-sm font-medium">
+                  {product.stock} disponibles en stock
                 </span>
+              </div>
+              <div className="flex items-center bg-gray-900 rounded-lg w-fit">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="px-3 sm:px-4 py-2 text-white hover:bg-gray-800 rounded-l-lg transition-colors"
+                >
+                  -
+                </button>
+                <span className="px-4 sm:px-6 py-2 text-white font-semibold">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                  disabled={quantity >= product.stock}
+                  className={`px-3 sm:px-4 py-2 rounded-r-lg transition-colors ${
+                    quantity >= product.stock 
+                      ? 'text-gray-600 cursor-not-allowed' 
+                      : 'text-white hover:bg-gray-800'
+                  }`}
+                >
+                  +
+                </button>
               </div>
             </div>
 

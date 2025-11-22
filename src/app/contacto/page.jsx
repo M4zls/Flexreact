@@ -1,5 +1,7 @@
 'use client';
 
+import { Mail, MapIcon, Phone } from "lucide-react";
+
 export default function Contacto() {
   return (
     <div className="min-h-screen bg-black pt-32 pb-16 px-6">
@@ -60,19 +62,19 @@ export default function Contacto() {
 
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
           <div className="bg-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10">
-            <div className="text-purple-500 text-3xl mb-3">📧</div>
+            <Mail className="text-white text-3xl mb-3 w-8 h-8 mx-auto"></Mail>
             <h3 className="text-white font-semibold mb-2">Email</h3>
             <p className="text-gray-400 text-sm">contacto@flex.cl</p>
           </div>
           
           <div className="bg-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10">
-            <div className="text-purple-500 text-3xl mb-3">📱</div>
+            <Phone className="text-white text-3xl mb-3 w-8 h-8 mx-auto"></Phone>
             <h3 className="text-white font-semibold mb-2">Teléfono</h3>
             <p className="text-gray-400 text-sm">+56 9 1234 5678</p>
           </div>
           
           <div className="bg-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10">
-            <div className="text-purple-500 text-3xl mb-3">📍</div>
+            <MapIcon className="text-white text-3xl mb-3 w-8 h-8 mx-auto"></MapIcon>
             <h3 className="text-white font-semibold mb-2">Ubicación</h3>
             <p className="text-gray-400 text-sm">Santiago, Chile</p>
           </div>

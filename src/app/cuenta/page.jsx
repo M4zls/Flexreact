@@ -6,14 +6,16 @@ import Link from 'next/link';
 import { User, Package, MapPin, Calendar, LogOut, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useConfirm } from '../../Components/ConfirmModal';
-import { actualizarEstadosAleatorios } from '../../utils/estadosPedidos';
+import { obtenerPedidos } from '../../services/api';
 
 export default function Cuenta() {
-  const { user, logout, loading, actualizarEstadoPedido } = useAuth();
+  const { user, token, logout, loading } = useAuth();
   const router = useRouter();
   const { showConfirm, ConfirmDialog } = useConfirm();
   const [activeTab, setActiveTab] = useState('perfil');
   const [isClient, setIsClient] = useState(false);
+  const [pedidos, setPedidos] = useState([]);
+  const [loadingPedidos, setLoadingPedidos] = useState(false);
 
   // Asegurar que estamos en el cliente
   useEffect(() => {
@@ -34,12 +36,24 @@ export default function Cuenta() {
     }
   }, [user, loading, router]);
 
-  // Simular cambios de estado de pedidos
+  // Cargar pedidos desde el backend
   useEffect(() => {
-    if (user && user.pedidos && user.pedidos.length > 0) {
-      actualizarEstadosAleatorios(user.pedidos, actualizarEstadoPedido);
+    async function cargarPedidos() {
+      if (user && token && activeTab === 'pedidos') {
+        setLoadingPedidos(true);
+        try {
+          const response = await obtenerPedidos(token, user.id);
+          setPedidos(Array.isArray(response) ? response : []);
+        } catch (error) {
+          console.error('Error al cargar pedidos:', error);
+          setPedidos([]);
+        } finally {
+          setLoadingPedidos(false);
+        }
+      }
     }
-  }, [user, actualizarEstadoPedido]);
+    cargarPedidos();
+  }, [user, token, activeTab]);
 
   // Mostrar loading mientras se carga
   if (loading || !isClient) {
@@ -169,9 +183,9 @@ export default function Cuenta() {
                 >
                   <Package className="w-4 h-4" />
                   Mis Pedidos
-                  {user.pedidos && user.pedidos.length > 0 && (
+                  {pedidos && pedidos.length > 0 && (
                     <span className="ml-auto bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
-                      {user.pedidos.length}
+                      {pedidos.length}
                     </span>
                   )}
                 </button>
@@ -229,7 +243,12 @@ export default function Cuenta() {
                 <div className="bg-white rounded-2xl p-8 shadow-sm">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6">Mis Pedidos</h2>
                   
-                  {!user.pedidos || user.pedidos.length === 0 ? (
+                  {loadingPedidos ? (
+                    <div className="text-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+                      <p className="text-gray-600">Cargando pedidos...</p>
+                    </div>
+                  ) : !pedidos || pedidos.length === 0 ? (
                     <div className="text-center py-12">
                       <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -246,74 +265,65 @@ export default function Cuenta() {
                       </Link>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {user.pedidos.map((pedido) => (
-                        <div key={pedido.id} className="border border-gray-200 rounded-xl p-6">
-                          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
-                            <div className="mb-4 lg:mb-0">
-                              <h3 className="font-semibold text-gray-900">
-                                Pedido #{pedido.id.slice(-6)}
-                              </h3>
-                              <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                                <span className="flex items-center gap-1">
-                                  <Calendar className="w-4 h-4" />
-                                  {formatearFecha(pedido.fecha)}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <MapPin className="w-4 h-4" />
-                                  {pedido.direccion?.ciudad || 'Dirección no disponible'}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <span className={`px-3 py-1 border rounded-full text-sm font-medium ${getEstadoColor(pedido.estado)}`}>
-                                {pedido.estado}
-                              </span>
-                              <div className="text-right">
-                                <p className="text-lg font-bold text-gray-900">
-                                  ${pedido.total?.toLocaleString('es-CL') || '0'}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                  {pedido.productos?.length || 0} producto(s)
+                    <div className="space-y-6">
+                      {pedidos.map((pedido) => (
+                        <div key={pedido.id} className="border-2 border-gray-300 rounded-xl p-6 bg-gray-50">
+                          {/* Encabezado de la boleta */}
+                          <div className="border-b-2 border-dashed border-gray-300 pb-4 mb-4">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h3 className="text-xl font-bold text-gray-900">BOLETA DE VENTA</h3>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  Pedido #{pedido.id.substring(0, 8).toUpperCase()}
                                 </p>
                               </div>
                             </div>
                           </div>
-                          
-                          {pedido.productos && pedido.productos.length > 0 && (
-                            <div className="space-y-3">
-                              <h4 className="font-medium text-gray-900">Productos:</h4>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {pedido.productos.map((producto, index) => (
-                                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                                    <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                                      <img
-                                        src={producto.imagen || '/placeholder.jpg'}
-                                        alt={producto.nombre || 'Producto'}
-                                        className="w-full h-full object-contain"
-                                        onError={(e) => {
-                                          if (e.target instanceof HTMLImageElement) {
-                                            e.target.style.display = 'none';
-                                          }
-                                        }}
-                                      />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="font-medium text-sm text-gray-900 truncate">
-                                        {producto.nombre || 'Producto'}
-                                      </p>
-                                      <p className="text-xs text-gray-600">
-                                        Talla: {producto.size || 'N/A'} | Qty: {producto.quantity || 1}
-                                      </p>
-                                      <p className="text-sm font-semibold text-gray-900">
-                                        ${((producto.precio || 0) * (producto.quantity || 1)).toLocaleString('es-CL')}
-                                      </p>
-                                    </div>
+
+                          {/* Productos */}
+                          <div className="space-y-3 mb-4">
+                            <h4 className="font-semibold text-gray-900">Productos:</h4>
+                            {pedido.productos && pedido.productos.map((item, idx) => (
+                              <div key={idx} className="flex justify-between items-center py-2 border-b border-gray-200">
+                                <div className="flex items-center gap-3">
+                                  {item.imagen && (
+                                    <img 
+                                      src={item.imagen} 
+                                      alt={item.nombre}
+                                      className="w-12 h-12 object-contain rounded bg-white"
+                                    />
+                                  )}
+                                  <div>
+                                    <p className="font-medium text-gray-900">{item.nombre}</p>
+                                    <p className="text-sm text-gray-600">
+                                      Talla: {item.talla} • Cantidad: {item.cantidad}
+                                    </p>
                                   </div>
-                                ))}
+                                </div>
+                                <p className="font-semibold text-gray-900">
+                                  ${(item.precio * item.cantidad).toLocaleString('es-CL')}
+                                </p>
                               </div>
+                            ))}
+                          </div>
+
+                          {/* Totales */}
+                          <div className="border-t-2 border-gray-300 pt-4 space-y-2">
+                            <div className="flex justify-between text-gray-700">
+                              <span>Subtotal:</span>
+                              <span>${pedido.total.toLocaleString('es-CL')}</span>
                             </div>
-                          )}
+                            <div className="flex justify-between text-xl font-bold text-gray-900">
+                              <span>TOTAL:</span>
+                              <span>${pedido.total.toLocaleString('es-CL')}</span>
+                            </div>
+                          </div>
+
+                          {/* Información adicional */}
+                          <div className="mt-4 pt-4 border-t border-dashed border-gray-300 text-sm text-gray-600">
+                            <p><span className="font-semibold">Dirección de envío:</span> {pedido.direccionEnvio}</p>
+                            <p><span className="font-semibold">Método de pago:</span> {pedido.metodoPago}</p>
+                          </div>
                         </div>
                       ))}
                     </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
+import { registrarUsuario, loginUsuario, logoutUsuario } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -14,13 +15,17 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Cargar usuario desde localStorage al iniciar
+    // Cargar usuario y token desde localStorage al iniciar
     useEffect(() => {
         const userData = localStorage.getItem('userData');
-        if (userData) {
+        const userToken = localStorage.getItem('token');
+        
+        if (userData && userToken) {
             setUser(JSON.parse(userData));
+            setToken(userToken);
         }
         setLoading(false);
     }, []);
@@ -37,88 +42,109 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Registrar usuario
-    const registrar = (userData) => {
-        const { nombre, email, password, confirmPassword } = userData;
+    const registrar = async (userData) => {
+        const { nombre, email, password } = userData;
         
         // Validaciones
-        if (!nombre || !email || !password || !confirmPassword) {
+        if (!nombre || !email || !password) {
             throw new Error('Todos los campos son requeridos');
         }
         
         if (!validarEmail(email)) {
-            throw new Error('Email debe terminar en @gmail.cl, @duocuc.cl o @profesorduoc.cl');
+            throw new Error('Email debe terminar en @gmail.com, @duocuc.cl o @profesorduoc.cl');
         }
         
         if (!validarContrasena(password)) {
             throw new Error('La contraseña debe tener entre 8 y 12 caracteres');
         }
         
-        if (password !== confirmPassword) {
-            throw new Error('Las contraseñas no coinciden');
+        try {
+            // Registrar en el backend - confirmPassword se envía igual a password
+            const response = await registrarUsuario({ nombre, email, password });
+            
+            console.log('=== RESPUESTA COMPLETA REGISTRO ===');
+            console.log('Response:', response);
+            console.log('Response.user:', response.user);
+            console.log('Response.usuario:', response.usuario);
+            console.log('Response.token:', response.token);
+            console.log('===================================');
+            
+            // Guardar datos en localStorage
+            // El backend Spring Boot devuelve el objeto en español: response.usuario
+            const userSession = response.usuario || response.user || response;
+            const sessionToken = response.token || response.session?.access_token;
+            
+            // Asegurar que tenga los campos necesarios
+            const userData = {
+                ...userSession,
+                fechaRegistro: userSession.fechaRegistro || userSession.fecha_registro || userSession.createdAt || new Date().toISOString(),
+                pedidos: userSession.pedidos || []
+            };
+            
+            if (userData && sessionToken) {
+                setUser(userData);
+                setToken(sessionToken);
+                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('token', sessionToken);
+            }
+            
+            return response;
+        } catch (error) {
+            console.error('Error al registrar:', error);
+            throw error;
         }
-        
-        // Verificar si el usuario ya existe
-        const usuariosExistentes = JSON.parse(localStorage.getItem('usuarios') || '[]');
-        if (usuariosExistentes.find(u => u.email === email)) {
-            throw new Error('Ya existe una cuenta con este email');
-        }
-        
-        // Crear nuevo usuario
-        const nuevoUsuario = {
-            id: Date.now().toString(),
-            nombre,
-            email,
-            password,
-            fechaRegistro: new Date().toISOString(),
-            pedidos: []
-        };
-        
-        // Guardar en localStorage
-        usuariosExistentes.push(nuevoUsuario);
-        localStorage.setItem('usuarios', JSON.stringify(usuariosExistentes));
-        
-        // Login automático
-        const userSession = { 
-            id: nuevoUsuario.id, 
-            nombre: nuevoUsuario.nombre, 
-            email: nuevoUsuario.email,
-            pedidos: nuevoUsuario.pedidos
-        };
-        setUser(userSession);
-        localStorage.setItem('userData', JSON.stringify(userSession));
-        
-        return nuevoUsuario;
     };
 
     // Iniciar sesión
-    const login = (email, password) => {
+    const login = async (email, password) => {
         if (!validarEmail(email)) {
-            throw new Error('Email debe terminar en @gmail.cl, @duocuc.cl o @profesorduoc.cl');
+            throw new Error('Email debe terminar en @gmail.com, @duocuc.cl o @profesorduoc.cl');
         }
         
-        const usuariosExistentes = JSON.parse(localStorage.getItem('usuarios') || '[]');
-        const usuario = usuariosExistentes.find(u => u.email === email && u.password === password);
-        
-        if (!usuario) {
-            throw new Error('Email o contraseña incorrectos');
+        try {
+            // Login en el backend
+            const response = await loginUsuario(email, password);
+            
+            console.log('=== RESPUESTA COMPLETA LOGIN ===');
+            console.log('Response:', response);
+            console.log('Response.user:', response.user);
+            console.log('Response.usuario:', response.usuario);
+            console.log('Response.token:', response.token);
+            console.log('================================');
+            
+            // Guardar datos en localStorage
+            // El backend Spring Boot devuelve el objeto en español: response.usuario
+            const userSession = response.usuario || response.user || response;
+            const sessionToken = response.token;
+            
+            // Asegurar que tenga los campos necesarios
+            const userData = {
+                ...userSession,
+                fechaRegistro: userSession.fechaRegistro || userSession.fecha_registro || userSession.createdAt || new Date().toISOString(),
+                pedidos: userSession.pedidos || []
+            };
+            
+            if (userData && sessionToken) {
+                setUser(userData);
+                setToken(sessionToken);
+                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('token', sessionToken);
+            }
+            
+            return response;
+        } catch (error) {
+            console.error('Error al iniciar sesión:', error);
+            throw error;
         }
-        
-        const userSession = { 
-            id: usuario.id, 
-            nombre: usuario.nombre, 
-            email: usuario.email,
-            pedidos: usuario.pedidos || []
-        };
-        setUser(userSession);
-        localStorage.setItem('userData', JSON.stringify(userSession));
-        
-        return usuario;
     };
 
     // Cerrar sesión
-    const logout = () => {
+    const logout = async () => {
+        // No llamar al backend, solo limpiar localStorage
         setUser(null);
+        setToken(null);
         localStorage.removeItem('userData');
+        localStorage.removeItem('token');
     };
 
     // Agregar pedido al usuario
@@ -179,6 +205,7 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         user,
+        token,
         loading,
         registrar,
         login,
