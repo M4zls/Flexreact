@@ -37,27 +37,47 @@ function PagoExitosoContent() {
                 console.log('External Reference:', externalReference);
                 console.log('User:', user);
                 console.log('Token presente:', !!token);
+                
+                // Debug localStorage
+                console.log('=== DEBUG LOCALSTORAGE ===');
+                console.log('userData en localStorage:', localStorage.getItem('userData'));
+                console.log('token en localStorage:', localStorage.getItem('token'));
+                console.log('pedidoPendiente en localStorage:', localStorage.getItem('pedidoPendiente'));
 
                 // Recuperar datos del pedido pendiente
                 const pedidoPendienteStr = localStorage.getItem('pedidoPendiente');
                 
-                if (!user || !token) {
-                    console.error('Usuario no autenticado');
-                    setError('Sesión expirada. Por favor inicia sesión nuevamente.');
-                    setProcesando(false);
-                    setTimeout(() => {
-                        router.push('/login');
-                    }, 3000);
-                    return;
+                // Si no hay user/token en context, intentar recuperarlos directamente de localStorage
+                let currentUser = user;
+                let currentToken = token;
+                
+                if (!currentUser || !currentToken) {
+                    console.log('Intentando recuperar sesión de localStorage...');
+                    const userDataStr = localStorage.getItem('userData');
+                    const tokenStr = localStorage.getItem('token');
+                    
+                    if (userDataStr && tokenStr) {
+                        currentUser = JSON.parse(userDataStr);
+                        currentToken = tokenStr;
+                        console.log('Sesión recuperada de localStorage:', currentUser);
+                    } else {
+                        console.error('No hay sesión en localStorage');
+                        setError('Sesión expirada. Por favor inicia sesión nuevamente.');
+                        setProcesando(false);
+                        setTimeout(() => {
+                            router.push('/login');
+                        }, 3000);
+                        return;
+                    }
                 }
                 
                 if (pedidoPendienteStr) {
                     const pedidoPendiente = JSON.parse(pedidoPendienteStr);
                     
-                    // Crear el pedido en el backend
+                    // Crear el pedido en el backend usando las variables recuperadas
                     const pedidoData = {
-                        email: user.email,
-                        nombre: user.nombre,
+                        email: currentUser.email,
+                        nombre: currentUser.nombre,
                         items: pedidoPendiente.items,
                         total: pedidoPendiente.total,
                         direccionEnvio: pedidoPendiente.direccionEnvio,
@@ -66,7 +86,7 @@ function PagoExitosoContent() {
 
                     console.log('Creando pedido en backend:', pedidoData);
                     
-                    const response = await crearPedido(pedidoData, token);
+                    const response = await crearPedido(pedidoData, currentToken);
                     console.log('Pedido creado:', response);
                     
                     setPedidoId(response.id || pedidoPendiente.pedidoId);

@@ -197,8 +197,14 @@ export default function PagoPage() {
                 // Flujo de Mercado Pago
                 console.log('=== CREANDO PREFERENCIA MERCADO PAGO ===');
                 
+                // Obtener la URL actual del navegador
+                const currentUrl = typeof window !== 'undefined' 
+                    ? `${window.location.protocol}//${window.location.host}`
+                    : '';
+                
                 const pagoData = {
                     pedidoId: `ORDEN-${user.id}-${Date.now()}`,
+                    returnUrl: currentUrl,
                     productos: cart.map(item => {
                         const precioFinal = item.descuento 
                             ? Math.round(item.precio * (1 - item.descuento / 100))
