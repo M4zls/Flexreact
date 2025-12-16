@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Clock, AlertCircle, ArrowRight } from 'lucide-react';
 
-export default function PagoPendientePage() {
+function PagoPendienteContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -118,5 +118,20 @@ export default function PagoPendientePage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function PagoPendientePage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-20">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-500 mx-auto mb-4"></div>
+                    <p className="text-lg text-gray-700">Cargando...</p>
+                </div>
+            </div>
+        }>
+            <PagoPendienteContent />
+        </Suspense>
     );
 }

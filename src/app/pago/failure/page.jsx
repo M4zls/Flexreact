@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { XCircle, AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 
-export default function PagoFallidoPage() {
+function PagoFallidoContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -128,5 +128,20 @@ export default function PagoFallidoPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function PagoFallidoPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-20">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-red-500 mx-auto mb-4"></div>
+                    <p className="text-lg text-gray-700">Cargando...</p>
+                </div>
+            </div>
+        }>
+            <PagoFallidoContent />
+        </Suspense>
     );
 }
