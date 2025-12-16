@@ -199,21 +199,24 @@ export default function PagoPage() {
                 
                 const pagoData = {
                     pedidoId: `ORDEN-${user.id}-${Date.now()}`,
-                    productos: cart.map(item => ({
-                        productoId: item.id,
-                        nombre: item.nombre,
-                        descripcion: item.descripcion || item.nombre,
-                        imagenUrl: item.imagen || 'https://via.placeholder.com/150',
-                        cantidad: item.quantity || 1,
-                        precio: item.descuento 
+                    productos: cart.map(item => {
+                        const precioFinal = item.descuento 
                             ? Math.round(item.precio * (1 - item.descuento / 100))
-                            : item.precio
-                    })),
+                            : item.precio;
+                        return {
+                            productoId: item.id,
+                            nombre: item.nombre || 'Producto',
+                            descripcion: item.descripcion || item.nombre || 'Sin descripción',
+                            imagenUrl: item.imagen || '/Img/logo.webp',
+                            cantidad: item.quantity || 1,
+                            precio: precioFinal
+                        };
+                    }),
                     comprador: {
                         nombre: formData.nombre,
                         apellido: formData.apellido,
                         email: formData.email,
-                        telefono: formData.telefono,
+                        telefono: formData.telefono || '',
                         direccion: formData.direccion,
                         ciudad: formData.ciudad,
                         codigoPostal: formData.codigoPostal
