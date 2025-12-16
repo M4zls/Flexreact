@@ -314,3 +314,170 @@ export async function actualizarPerfil(nombre, token) {
     throw error;
   }
 }
+
+// ==================== CRUD DE USUARIOS ====================
+
+/**
+ * Obtener todos los usuarios (requiere autenticación)
+ */
+export async function obtenerTodosLosUsuarios(token) {
+  try {
+    const response = await fetch(`${API_URL}/api/usuarios`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Error en obtenerTodosLosUsuarios:', error);
+    throw error;
+  }
+}
+
+/**
+ * Obtener un usuario por ID
+ */
+export async function obtenerUsuarioPorId(usuarioId, token) {
+  try {
+    const response = await fetch(`${API_URL}/api/usuarios/${usuarioId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Error en obtenerUsuarioPorId:', error);
+    throw error;
+  }
+}
+
+/**
+ * Obtener un usuario por email
+ */
+export async function obtenerUsuarioPorEmail(email, token) {
+  try {
+    const response = await fetch(`${API_URL}/api/usuarios/email/${encodeURIComponent(email)}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Error en obtenerUsuarioPorEmail:', error);
+    throw error;
+  }
+}
+
+/**
+ * Actualizar usuario
+ */
+export async function actualizarUsuario(usuarioId, datos, token) {
+  try {
+    const response = await fetch(`${API_URL}/api/usuarios/${usuarioId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(datos),
+    });
+    
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Error en actualizarUsuario:', error);
+    throw error;
+  }
+}
+
+/**
+ * Eliminar usuario
+ */
+export async function eliminarUsuario(usuarioId, token) {
+  try {
+    const response = await fetch(`${API_URL}/api/usuarios/${usuarioId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Error en eliminarUsuario:', error);
+    throw error;
+  }
+}
+
+/**
+ * Obtener todos los pedidos de un usuario
+ */
+export async function obtenerPedidosDeUsuario(usuarioId, token) {
+  try {
+    const response = await fetch(`${API_URL}/api/usuarios/${usuarioId}/pedidos`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Error en obtenerPedidosDeUsuario:', error);
+    throw error;
+  }
+}
+
+/**
+ * Contar pedidos de un usuario
+ */
+export async function contarPedidosDeUsuario(usuarioId, token) {
+  try {
+    const response = await fetch(`${API_URL}/api/usuarios/${usuarioId}/pedidos/count`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Error en contarPedidosDeUsuario:', error);
+    throw error;
+  }
+}
+
+/**
+ * Crear preferencia de pago con Mercado Pago
+ */
+export async function crearPreferenciaMercadoPago(pagoData, token) {
+  try {
+    console.log('=== CREAR PREFERENCIA MERCADO PAGO ===');
+    console.log('Data enviada:', JSON.stringify(pagoData, null, 2));
+    console.log('Token:', token ? 'presente' : 'ausente');
+    
+    const response = await fetch(`${API_URL}/api/pagos/crear-preferencia`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(pagoData),
+    });
+    
+    const result = await handleResponse(response);
+    console.log('Preferencia creada:', result);
+    console.log('====================================');
+    
+    return result;
+  } catch (error) {
+    console.error('Error en crearPreferenciaMercadoPago:', error);
+    throw error;
+  }
+}
+
