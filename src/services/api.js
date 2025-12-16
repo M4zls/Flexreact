@@ -314,3 +314,28 @@ export async function actualizarPerfil(nombre, token) {
     throw error;
   }
 }
+
+/**
+ * Crear preferencia de pago con Mercado Pago
+ */
+export async function crearPreferenciaMercadoPago(pagoData, token) {
+  try {
+    console.log('=== CREAR PREFERENCIA MERCADO PAGO ===');
+    console.log('Data enviada:', JSON.stringify(pagoData, null, 2));
+    console.log('Token:', token ? 'presente' : 'ausente');
+
+    const response = await fetch(`${API_URL}/api/pagos/crear-preferencia`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(pagoData),
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Error en crearPreferenciaMercadoPago:', error);
+    throw error;
+  }
+}
