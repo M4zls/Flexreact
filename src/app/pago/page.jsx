@@ -35,6 +35,7 @@ export default function PagoPage() {
     const [loading, setLoading] = useState(false);
     const [procesando, setProcesando] = useState(false);
     const [pagoCompletado, setPagoCompletado] = useState(false);
+    const [metodoPago, setMetodoPago] = useState('mercadopago'); // 'mercadopago' o 'formulario'
     const [formData, setFormData] = useState({
         ...initialFormData,
         metodoEnvio: metodosEnvio[0].id
@@ -135,31 +136,37 @@ export default function PagoPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Solo validar datos personales y direcci├│n, no tarjeta (Mercado Pago la manejar├í)
-        const nuevosErrores = { ...initialErrores };
-        const camposRequeridos = [
-            'nombre', 'apellido', 'email', 'telefono', 
-            'direccion', 'ciudad', 'region', 'codigoPostal'
-        ];
-        
-        camposRequeridos.forEach(campo => {
-            if (!formData[campo]?.toString().trim()) {
-                nuevosErrores[campo] = `${campo.charAt(0).toUpperCase() + campo.slice(1)} es requerido`;
+        // Validar según el método de pago seleccionado
+        if (metodoPago === 'formulario') {
+            // Validación completa incluyendo tarjeta
+            if (!validarFormulario()) return;
+        } else {
+            // Solo validar datos personales y dirección para Mercado Pago
+            const nuevosErrores = { ...initialErrores };
+            const camposRequeridos = [
+                'nombre', 'apellido', 'email', 'telefono', 
+                'direccion', 'ciudad', 'region', 'codigoPostal'
+            ];
+            
+            camposRequeridos.forEach(campo => {
+                if (!formData[campo]?.toString().trim()) {
+                    nuevosErrores[campo] = `${campo.charAt(0).toUpperCase() + campo.slice(1)} es requerido`;
+                }
+            });
+            
+            if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+                nuevosErrores.email = 'Email inválido';
             }
-        });
-        
-        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            nuevosErrores.email = 'Email inv├ílido';
-        }
-        
-        if (formData.telefono && formData.telefono.length !== 9) {
-            nuevosErrores.telefono = 'El tel├®fono debe tener 9 d├¡gitos';
-        }
-        
-        setErrores(nuevosErrores);
-        if (Object.values(nuevosErrores).some(error => error !== '')) {
-            showToast('Por favor completa todos los campos requeridos', 'warning');
-            return;
+            
+            if (formData.telefono && formData.telefono.length !== 9) {
+                nuevosErrores.telefono = 'El teléfono debe tener 9 dígitos';
+            }
+            
+            setErrores(nuevosErrores);
+            if (Object.values(nuevosErrores).some(error => error !== '')) {
+                showToast('Por favor completa todos los campos requeridos', 'warning');
+                return;
+            }
         }
         
         if (cart.length === 0) {
@@ -179,66 +186,100 @@ export default function PagoPage() {
         setProcesando(true);
         
         try {
-            // Verificar que el usuario est├® autenticado
+            // Verificar que el usuario esté autenticado
             if (!user || !token) {
-                showToast('Debes iniciar sesi├│n para realizar el pedido', 'error');
+                showToast('Debes iniciar sesión para realizar el pedido', 'error');
                 router.push('/login');
                 return;
             }
             
-            console.log('=== CREANDO PREFERENCIA MERCADO PAGO ===');
-            
-            // Preparar datos para Mercado Pago
-            const pagoData = {
-                pedidoId: `ORDEN-${user.id}-${Date.now()}`,
-                productos: cart.map(item => ({
-                    productoId: item.id,
-                    nombre: item.nombre,
-                    descripcion: item.descripcion || item.nombre,
-                    imagenUrl: item.imagen || 'https://via.placeholder.com/150',
-                    cantidad: item.quantity || 1,
-                    precio: item.descuento 
-                        ? Math.round(item.precio * (1 - item.descuento / 100))
-                        : item.precio
-                })),
-                comprador: {
-                    nombre: formData.nombre,
-                    apellido: formData.apellido,
-                    email: formData.email,
-                    telefono: formData.telefono,
-                    direccion: formData.direccion,
-                    ciudad: formData.ciudad,
-                    codigoPostal: formData.codigoPostal
-                }
-            };
-            
-            console.log('Data para MP:', JSON.stringify(pagoData, null, 2));
-            
-            // Crear preferencia en Mercado Pago
-            const preferencia = await crearPreferenciaMercadoPago(pagoData, token);
-            
-            console.log('Preferencia creada:', preferencia);
-            
-            // Guardar datos en localStorage para recuperar despu├®s del pago
-            localStorage.setItem('pedidoPendiente', JSON.stringify({
-                pedidoId: pagoData.pedidoId,
-                items: cart.map(item => ({
-                    productoId: item.id,
-                    cantidad: item.quantity || 1,
-                    precioUnitario: item.descuento 
-                        ? Math.round(item.precio * (1 - item.descuento / 100))
-                        : item.precio
-                })),
-                total: totalFinal,
-                direccionEnvio: `${formData.direccion}, ${formData.ciudad}, ${formData.region}, ${formData.codigoPostal}`,
-                metodoPago: 'Mercado Pago'
-            }));
-            
-            // Redirigir a Mercado Pago
-            showToast('Redirigiendo a Mercado Pago...', 'info');
-            setTimeout(() => {
-                window.location.href = preferencia.initPoint;
-            }, 1000);
+            if (metodoPago === 'mercadopago') {
+                // Flujo de Mercado Pago
+                console.log('=== CREANDO PREFERENCIA MERCADO PAGO ===');
+                
+                const pagoData = {
+                    pedidoId: `ORDEN-${user.id}-${Date.now()}`,
+                    productos: cart.map(item => ({
+                        productoId: item.id,
+                        nombre: item.nombre,
+                        descripcion: item.descripcion || item.nombre,
+                        imagenUrl: item.imagen || 'https://via.placeholder.com/150',
+                        cantidad: item.quantity || 1,
+                        precio: item.descuento 
+                            ? Math.round(item.precio * (1 - item.descuento / 100))
+                            : item.precio
+                    })),
+                    comprador: {
+                        nombre: formData.nombre,
+                        apellido: formData.apellido,
+                        email: formData.email,
+                        telefono: formData.telefono,
+                        direccion: formData.direccion,
+                        ciudad: formData.ciudad,
+                        codigoPostal: formData.codigoPostal
+                    }
+                };
+                
+                console.log('Data para MP:', JSON.stringify(pagoData, null, 2));
+                
+                const preferencia = await crearPreferenciaMercadoPago(pagoData, token);
+                
+                console.log('Preferencia creada:', preferencia);
+                
+                // Guardar datos en localStorage
+                localStorage.setItem('pedidoPendiente', JSON.stringify({
+                    pedidoId: pagoData.pedidoId,
+                    items: cart.map(item => ({
+                        productoId: item.id,
+                        cantidad: item.quantity || 1,
+                        precioUnitario: item.descuento 
+                            ? Math.round(item.precio * (1 - item.descuento / 100))
+                            : item.precio
+                    })),
+                    total: totalFinal,
+                    direccionEnvio: `${formData.direccion}, ${formData.ciudad}, ${formData.region}, ${formData.codigoPostal}`,
+                    metodoPago: 'Mercado Pago'
+                }));
+                
+                showToast('Redirigiendo a Mercado Pago...', 'info');
+                setTimeout(() => {
+                    window.location.href = preferencia.initPoint;
+                }, 1000);
+                
+            } else {
+                // Flujo de formulario tradicional
+                console.log('=== CREAR PEDIDO CON FORMULARIO ===');
+                
+                const pedidoData = {
+                    email: user.email,
+                    nombre: user.nombre,
+                    items: cart.map(item => ({
+                        productoId: item.id,
+                        cantidad: item.quantity || 1,
+                        precioUnitario: item.descuento
+                            ? Math.round(item.precio * (1 - item.descuento / 100))
+                            : item.precio
+                    })),
+                    total: totalFinal,
+                    direccionEnvio: `${formData.direccion}, ${formData.ciudad}, ${formData.region}, ${formData.codigoPostal}`,
+                    metodoPago: 'Tarjeta de Crédito'
+                };
+                
+                console.log('Pedido data:', JSON.stringify(pedidoData, null, 2));
+                
+                const response = await crearPedido(pedidoData, token);
+                
+                console.log('Pedido creado:', response);
+                
+                showToast('¡Pedido realizado exitosamente!', 'success');
+                agregarPedido(response);
+                limpiarCarrito();
+                setPagoCompletado(true);
+                
+                setTimeout(() => {
+                    router.push('/cuenta?tab=pedidos');
+                }, 3000);
+            }
             
         } catch (error) {
             console.error('Error procesando pago:', error);
@@ -287,44 +328,107 @@ export default function PagoPage() {
                             handleInputChange={handleInputChange}
                         />
 
-                        {/* Informaci├│n de Mercado Pago */}
+                        {/* Método de Pago */}
                         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                             <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                                M├®todo de Pago
+                                Método de Pago
                             </h2>
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                                <div className="flex items-start gap-3">
-                                    <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                                    </svg>
-                                    <div>
-                                        <h3 className="font-semibold text-blue-900 mb-1">Pago seguro con Mercado Pago</h3>
-                                        <p className="text-sm text-blue-800">
-                                            Ser├ís redirigido a Mercado Pago para completar tu pago de forma segura. 
-                                            Puedes pagar con tarjeta de cr├®dito, d├®bito o efectivo.
-                                        </p>
+                            
+                            {/* Selector de método de pago */}
+                            <div className="space-y-3 mb-6">
+                                <div
+                                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                                        metodoPago === 'mercadopago'
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                    }`}
+                                    onClick={() => setMetodoPago('mercadopago')}
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <input
+                                            type="radio"
+                                            checked={metodoPago === 'mercadopago'}
+                                            onChange={() => setMetodoPago('mercadopago')}
+                                            className="mt-1"
+                                        />
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <h3 className="font-semibold text-gray-900">Mercado Pago</h3>
+                                                <img 
+                                                    src="https://http2.mlstatic.com/storage/logos-api-admin/a5f047d0-9be0-11ec-aad4-c3381f368aaf-xl@2x.png" 
+                                                    alt="Mercado Pago" 
+                                                    className="h-5 object-contain"
+                                                />
+                                            </div>
+                                            <p className="text-sm text-gray-600">
+                                                Paga de forma segura con tarjeta de crédito, débito o efectivo
+                                            </p>
+                                            <div className="flex gap-2 mt-2">
+                                                <svg className="w-8 h-5" viewBox="0 0 48 32" fill="none">
+                                                    <rect width="48" height="32" rx="4" fill="#1434CB"/>
+                                                    <path d="M15.3 20.5h-3.6l2.2-13.6h3.6l-2.2 13.6zm15.8-13.3c-.7-.3-1.8-.6-3.2-.6-3.5 0-6 1.9-6 4.5 0 2 1.8 3 3.1 3.7 1.4.7 1.8 1.1 1.8 1.7 0 .9-1.1 1.3-2.1 1.3-1.4 0-2.1-.2-3.2-.7l-.4-.2-.5 2.9c.8.4 2.4.7 4 .7 3.7 0 6.1-1.8 6.1-4.7 0-1.5-.9-2.7-2.9-3.6-1.2-.6-1.9-1-1.9-1.6 0-.5.6-1.1 1.9-1.1 1.1 0 1.9.2 2.5.5l.3.1.5-2.9zm8.9-.3h-2.8c-.9 0-1.5.2-1.9 1.1l-5.4 12.5h3.7s.6-1.6.7-2h4.5c.1.5.4 2 .4 2h3.3l-2.5-13.6zm-4.4 8.8c.3-.8 1.4-3.7 1.4-3.7s.3-.8.5-1.3l.2 1.2s.7 3.3.9 4h-3zm-16.8-8.8l-3.5 9.3-.4-1.9c-.7-2.3-2.8-4.8-5.2-6l3.2 12.1h3.7l5.5-13.5h-3.3z" fill="white"/>
+                                                </svg>
+                                                <svg className="w-8 h-5" viewBox="0 0 48 32" fill="none">
+                                                    <rect width="48" height="32" rx="4" fill="#EB001B"/>
+                                                    <circle cx="19" cy="16" r="10" fill="#EB001B"/>
+                                                    <circle cx="29" cy="16" r="10" fill="#F79E1B"/>
+                                                    <path d="M24 8.5c1.9 1.5 3 3.8 3 6.5s-1.1 5-3 6.5c-1.9-1.5-3-3.8-3-6.5s1.1-5 3-6.5z" fill="#FF5F00"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div
+                                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                                        metodoPago === 'formulario'
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-gray-200 hover:border-gray-300'
+                                    }`}
+                                    onClick={() => setMetodoPago('formulario')}
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <input
+                                            type="radio"
+                                            checked={metodoPago === 'formulario'}
+                                            onChange={() => setMetodoPago('formulario')}
+                                            className="mt-1"
+                                        />
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-gray-900 mb-1">Tarjeta de Crédito/Débito</h3>
+                                            <p className="text-sm text-gray-600">
+                                                Ingresa los datos de tu tarjeta directamente
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center justify-center gap-4 p-4 bg-gray-50 rounded-lg">
-                                <img 
-                                    src="https://http2.mlstatic.com/storage/logos-api-admin/a5f047d0-9be0-11ec-aad4-c3381f368aaf-xl@2x.png" 
-                                    alt="Mercado Pago" 
-                                    className="h-8 object-contain"
+                            
+                            {/* Mostrar formulario de tarjeta si se selecciona */}
+                            {metodoPago === 'formulario' && (
+                                <InformacionPago 
+                                    formData={formData}
+                                    errores={errores}
+                                    handleInputChange={handleInputChange}
                                 />
-                                <div className="flex gap-2">
-                                    <svg className="w-10 h-6" viewBox="0 0 48 32" fill="none">
-                                        <rect width="48" height="32" rx="4" fill="#1434CB"/>
-                                        <path d="M15.3 20.5h-3.6l2.2-13.6h3.6l-2.2 13.6zm15.8-13.3c-.7-.3-1.8-.6-3.2-.6-3.5 0-6 1.9-6 4.5 0 2 1.8 3 3.1 3.7 1.4.7 1.8 1.1 1.8 1.7 0 .9-1.1 1.3-2.1 1.3-1.4 0-2.1-.2-3.2-.7l-.4-.2-.5 2.9c.8.4 2.4.7 4 .7 3.7 0 6.1-1.8 6.1-4.7 0-1.5-.9-2.7-2.9-3.6-1.2-.6-1.9-1-1.9-1.6 0-.5.6-1.1 1.9-1.1 1.1 0 1.9.2 2.5.5l.3.1.5-2.9zm8.9-.3h-2.8c-.9 0-1.5.2-1.9 1.1l-5.4 12.5h3.7s.6-1.6.7-2h4.5c.1.5.4 2 .4 2h3.3l-2.5-13.6zm-4.4 8.8c.3-.8 1.4-3.7 1.4-3.7s.3-.8.5-1.3l.2 1.2s.7 3.3.9 4h-3zm-16.8-8.8l-3.5 9.3-.4-1.9c-.7-2.3-2.8-4.8-5.2-6l3.2 12.1h3.7l5.5-13.5h-3.3z" fill="white"/>
-                                    </svg>
-                                    <svg className="w-10 h-6" viewBox="0 0 48 32" fill="none">
-                                        <rect width="48" height="32" rx="4" fill="#EB001B"/>
-                                        <circle cx="19" cy="16" r="10" fill="#EB001B"/>
-                                        <circle cx="29" cy="16" r="10" fill="#F79E1B"/>
-                                        <path d="M24 8.5c1.9 1.5 3 3.8 3 6.5s-1.1 5-3 6.5c-1.9-1.5-3-3.8-3-6.5s1.1-5 3-6.5z" fill="#FF5F00"/>
-                                    </svg>
+                            )}
+                            
+                            {/* Información de Mercado Pago */}
+                            {metodoPago === 'mercadopago' && (
+                                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div className="flex items-start gap-3">
+                                        <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                        </svg>
+                                        <div>
+                                            <h3 className="font-semibold text-blue-900 mb-1">Pago seguro</h3>
+                                            <p className="text-sm text-blue-800">
+                                                Serás redirigido a Mercado Pago para completar tu compra de forma segura.
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
 
