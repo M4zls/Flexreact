@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://web-production-65103.up.railway.app';
 
 /**
  * Función helper para manejar respuestas de la API
