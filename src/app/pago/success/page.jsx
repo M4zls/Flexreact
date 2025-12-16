@@ -12,12 +12,18 @@ function PagoExitosoContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { limpiarCarrito } = useCart();
-    const { user, token } = useAuth();
+    const { user, token, loading: authLoading } = useAuth();
     const [procesando, setProcesando] = useState(true);
     const [error, setError] = useState(null);
     const [pedidoId, setPedidoId] = useState(null);
 
     useEffect(() => {
+        // Esperar a que se cargue la autenticación
+        if (authLoading) {
+            console.log('Esperando autenticación...');
+            return;
+        }
+
         const procesarPago = async () => {
             try {
                 // Obtener parámetros de Mercado Pago
@@ -29,11 +35,23 @@ function PagoExitosoContent() {
                 console.log('Payment ID:', paymentId);
                 console.log('Status:', status);
                 console.log('External Reference:', externalReference);
+                console.log('User:', user);
+                console.log('Token presente:', !!token);
 
                 // Recuperar datos del pedido pendiente
                 const pedidoPendienteStr = localStorage.getItem('pedidoPendiente');
                 
-                if (pedidoPendienteStr && user && token) {
+                if (!user || !token) {
+                    console.error('Usuario no autenticado');
+                    setError('Sesión expirada. Por favor inicia sesión nuevamente.');
+                    setProcesando(false);
+                    setTimeout(() => {
+                        router.push('/login');
+                    }, 3000);
+                    return;
+                }
+                
+                if (pedidoPendienteStr) {
                     const pedidoPendiente = JSON.parse(pedidoPendienteStr);
                     
                     // Crear el pedido en el backend
@@ -73,7 +91,7 @@ function PagoExitosoContent() {
         };
 
         procesarPago();
-    }, [searchParams, user, token, limpiarCarrito, router]);
+    }, [searchParams, user, token, authLoading, limpiarCarrito, router]);
 
     if (procesando) {
         return (
